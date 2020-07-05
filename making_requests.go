@@ -1,10 +1,23 @@
 package fusillade
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
-func MakeRequest(url string) int{
+type Response struct{
+	StatusCode int
+	//TODO: ID int
+	//TODO: RequestStart
+	//TODO: RequestFinished
+	//TODO: RequestDelta
+	ResponseTimeMS int64
+}
 
-	resp, _ := http.Get(url)
+func MakeRequest(url string) Response{
+	start := time.Now()
+	request, _ := http.Get(url)
+	end := time.Since(start)
 
-	return resp.StatusCode
+	return Response{StatusCode: request.StatusCode, ResponseTimeMS: end.Milliseconds()}
 }
