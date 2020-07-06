@@ -11,13 +11,21 @@ type Response struct{
 	//TODO: RequestStart
 	//TODO: RequestFinished
 	//TODO: RequestDelta
-	ResponseTimeMS int64
+	ResponseTime int64
 }
 
 func MakeRequest(url string) Response{
 	start := time.Now()
 	request, _ := http.Get(url)
-	end := time.Since(start)
+	end := CalculateMSDelta(start, time.Now())
 
-	return Response{StatusCode: request.StatusCode, ResponseTimeMS: end.Milliseconds()}
+	return Response{StatusCode: request.StatusCode, ResponseTime: end}
+}
+
+func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64){
+	// CalculateMSDelta does as it suggests, it takes two timestamps and
+	// calculates the delta between them by subtracting the start
+	// from the end. It represents the final result in milliseconds.
+	return end.Sub(start).Milliseconds()
+
 }

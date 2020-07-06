@@ -37,34 +37,26 @@ func TestGetter(t *testing.T){
 
 		AssertResponseCode(t, got.StatusCode, want)
 	})
+}
 
-	t.Run("Response time for request is 10ms", func(t *testing.T){
-		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-			time.Sleep(10 * time.Millisecond)
-			w.WriteHeader(http.StatusOK)
-		}))
-
-		got := MakeRequest(FakeServer.URL)
+func TestLatency(t *testing.T){
+	t.Run("Test latency checker is 10", func(t *testing.T) {
+		start := time.Date(2019, 1, 1, 1, 1, 1, 0, time.UTC)
+		finish := time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
+		got := CalculateMSDelta(start, finish)
 		var want int64 = 10
-
-		if got.ResponseTimeMS != want{
-			t.Errorf("Got response time %d. Expected response time of %d", got.ResponseTimeMS, want)
+		if got != want{
+			t.Errorf("got %d, wanted %d", got, want)
 		}
-
 	})
 
-	t.Run("Response time for request is 20ms", func(t *testing.T){
-		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-			time.Sleep(20 * time.Millisecond)
-			w.WriteHeader(http.StatusOK)
-		}))
-
-		got := MakeRequest(FakeServer.URL)
-		var want int64 = 20
-
-		if got.ResponseTimeMS != want{
-			t.Errorf("Got response time %d. Expected response time of %d", got.ResponseTimeMS, want)
+	t.Run("Test latency checker is 10", func(t *testing.T) {
+		start := time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
+		finish := time.Date(2019, 1, 1, 1, 1, 1, 40000000, time.UTC)
+		got := CalculateMSDelta(start, finish)
+		var want int64 = 30
+		if got != want{
+			t.Errorf("got %d, wanted %d", got, want)
 		}
-
 	})
 }
