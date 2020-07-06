@@ -50,7 +50,7 @@ func TestLatency(t *testing.T){
 		}
 	})
 
-	t.Run("Test latency checker is 10", func(t *testing.T) {
+	t.Run("Test latency checker is 30", func(t *testing.T) {
 		start := time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
 		finish := time.Date(2019, 1, 1, 1, 1, 1, 40000000, time.UTC)
 		got := CalculateMSDelta(start, finish)
