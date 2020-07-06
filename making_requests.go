@@ -1,4 +1,4 @@
-package fusillade
+package main
 
 import (
 	"net/http"
@@ -7,11 +7,11 @@ import (
 
 type Response struct{
 	StatusCode int
-	//TODO: ID int
+	//TODO: ID int. Might be user when it comes to concurrency to order the requests based on their ID.
 
-	//Timings associated with the request.
-	RequestStart int64
-	RequestFinished int64
+	//Store timings for a particular request.
+	RequestStart time.Time
+	RequestFinished time.Time
 	ResponseTime int64
 }
 
@@ -22,9 +22,14 @@ func MakeRequest(url string) Response{
 	// the function actually making a request.
 	start := time.Now()
 	request, _ := http.Get(url)
-	end := CalculateMSDelta(start, time.Now())
+	end := time.Now()
+	rt := CalculateMSDelta(start, end)
 
-	return Response{StatusCode: request.StatusCode, ResponseTime: end}
+	return Response{StatusCode: request.StatusCode,
+		RequestStart: start,
+		RequestFinished: end,
+		ResponseTime: rt,
+	}
 }
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64){

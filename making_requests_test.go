@@ -1,4 +1,4 @@
-package fusillade
+package main
 
 import (
 	"net/http"
