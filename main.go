@@ -5,29 +5,19 @@ import (
 	"time"
 )
 
-func main(){
-	// We'll store our various responses in this slice.
-	var r []Response
-
-	// Make the requests in sequence.
-	start := time.Now().Hour()
-	for i := 0; i<100; i++ {
-		r = append(r, MakeRequest("https://www.google.com"))
+func main() {
+	var r = make(map[int]Response)
+	// I should be able to make a request concurrently.
+	// Let's start by just printing out the request when it completes.
+	for i := 0; i < 100; i++ {
+		go func(i int){
+			r[i] = MakeRequest("https://www.google.com")
+		}(i)
 	}
-	end := time.Now().Hour()
-	delta := end - start
-	fmt.Println("Test length: %d. Test started: %d Test ended: %d.", delta, start, end)
+
+	time.Sleep(3 * time.Second)
 
 	for _, v := range r{
-		fmt.Printf("Code: %d. Time: %d.", v.StatusCode, v.ResponseTime)
-		fmt.Println()
+		fmt.Println(v.StatusCode, v.ResponseTime)
 	}
-
-
-
-
-
-
-	//r := MakeRequest("https://www.google.com")
-	//fmt.Printf("Request start:%v.\nResponse time: %v.\nCode: %v\n", r.RequestStart, r.ResponseTime, r.StatusCode)
 }
