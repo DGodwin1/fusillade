@@ -23,13 +23,13 @@ func MakeRequest(url string) Response {
 	// the function actually making a request.
 	start := time.Now()
 	request, err := http.Get(url)
+	end := time.Now()
 
 	if err != nil{
 		fmt.Println(err)
 		return Response{} //for now, just return an empty response.
 	}
 
-	end := time.Now()
 	rt := CalculateMSDelta(start, end)
 
 	return Response{StatusCode: request.StatusCode,
