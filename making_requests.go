@@ -1,21 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
 
-type Response struct{
+type Response struct {
 	StatusCode int
 	//TODO: ID int. Might be user when it comes to concurrency to order the requests based on their ID.
 
 	//Store timings for a particular request.
-	RequestStart time.Time
+	RequestStart    time.Time
 	RequestFinished time.Time
-	ResponseTime int64
+	ResponseTime    int64
 }
 
-func MakeRequest(url string) Response{
+func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
 	// all of the necessary information. CalculateMSDelta is moved
 	// out to make the testing of time calculation independent of
@@ -26,13 +27,13 @@ func MakeRequest(url string) Response{
 	rt := CalculateMSDelta(start, end)
 
 	return Response{StatusCode: request.StatusCode,
-		RequestStart: start,
+		RequestStart:    start,
 		RequestFinished: end,
-		ResponseTime: rt,
+		ResponseTime:    rt,
 	}
 }
 
-func MakeConcurrentRequests(url string) []Response{
+func MakeConcurrentRequests(url string) []Response {
 	// MakeConcurrentRequests is, for all intents and purposes,
 	// a wrapper function that facilitates concurrent execution
 	// of MakeRequest. Rather than force MakeRequest to handle concurrency,
@@ -41,13 +42,20 @@ func MakeConcurrentRequests(url string) []Response{
 
 	var responses []Response
 
-	for i := 0; i < 100; i++{
-		responses = append(responses, MakeRequest(url))}
+
+	for i := 0; i < 100; i++ {
+		fmt.Println("in loop")
+		go func(i int) {
+			responses = append(responses, MakeRequest(url))
+		}(i)
+	}
+
+	time.Sleep(4 * time.Second)
 
 	return responses
 }
 
-func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64){
+func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// CalculateMSDelta does as it suggests, it takes two timestamps and
 	// calculates the delta between them by subtracting the start
 	// from the end. It represents the final result in milliseconds.
