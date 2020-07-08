@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -21,7 +22,13 @@ func MakeRequest(url string) Response {
 	// out to make the testing of time calculation independent of
 	// the function actually making a request.
 	start := time.Now()
-	request, _ := http.Get(url)
+	request, err := http.Get(url)
+
+	if err != nil{
+		fmt.Println(err)
+		return Response{} //for now, just return an empty response.
+	}
+
 	end := time.Now()
 	rt := CalculateMSDelta(start, end)
 
@@ -51,7 +58,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 
 	// You've done the speedy stuff. Now unpack the channel
 	// and place into a slice of Responses.
-	for i:=0; i<count; i++{
+	for i := 0; i < count; i++ {
 
 		result := <-resultChannel
 		responses = append(responses, result)
