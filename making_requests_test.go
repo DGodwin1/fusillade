@@ -60,3 +60,20 @@ func TestLatency(t *testing.T){
 		}
 	})
 }
+
+func TestConcurrency(t *testing.T){
+	t.Run("Test that 100 requests leads to a collection of 100 Responses", func(t *testing.T){
+		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		got := MakeConcurrentRequests(FakeServer.URL)
+		want := 100
+
+		if len(got) != want{
+			t.Errorf("got %d, want %d", len(got),want)
+		}
+
+	})
+
+}

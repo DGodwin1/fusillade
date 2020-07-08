@@ -32,6 +32,21 @@ func MakeRequest(url string) Response{
 	}
 }
 
+func MakeConcurrentRequests(url string) []Response{
+	// MakeConcurrentRequests is, for all intents and purposes,
+	// a wrapper function that facilitates concurrent execution
+	// of MakeRequest. Rather than force MakeRequest to handle concurrency,
+	// as well as reporting and concurrency, I'm pulling this out into
+	// something that can manage it. Single responsibility and all that.
+
+	var responses []Response
+
+	for i := 0; i < 100; i++{
+		responses = append(responses, MakeRequest(url))}
+
+	return responses
+}
+
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64){
 	// CalculateMSDelta does as it suggests, it takes two timestamps and
 	// calculates the delta between them by subtracting the start
