@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -33,24 +32,30 @@ func MakeRequest(url string) Response {
 	}
 }
 
-func MakeConcurrentRequests(url string) []Response {
+func MakeConcurrentRequests(url string, count int) []Response {
 	// MakeConcurrentRequests is, for all intents and purposes,
 	// a wrapper function that facilitates concurrent execution
-	// of MakeRequest. Rather than force MakeRequest to handle concurrency,
-	// as well as reporting and concurrency, I'm pulling this out into
-	// something that can manage it. Single responsibility and all that.
+	// of MakeRequest. Rather than force MakeRequest to handle requests,
+	// reporting and concurrency, I'm pulling the concurrency out into
+	// something separate. Single responsibility and all that.
 
 	var responses []Response
+	resultChannel := make(chan Response)
 
-
-	for i := 0; i < 100; i++ {
-		fmt.Println("in loop")
+	// Do the concurrent stuff.
+	for i := 0; i < count; i++ {
 		go func(i int) {
-			responses = append(responses, MakeRequest(url))
+			resultChannel <- MakeRequest(url)
 		}(i)
 	}
 
-	time.Sleep(4 * time.Second)
+	// You've done the speedy stuff. Now unpack the channel
+	// and place into a slice of Responses.
+	for i:=0; i<count; i++{
+
+		result := <-resultChannel
+		responses = append(responses, result)
+	}
 
 	return responses
 }
