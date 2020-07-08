@@ -68,7 +68,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 }
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
-	// CalculateMSDelta does as it suggests, it takes two timestamps and
+	// CalculateMSDelta, as it suggests, takes two timestamps and
 	// calculates the delta between them by subtracting the start
 	// from the end. It represents the final result in milliseconds.
 	return end.Sub(start).Milliseconds()
