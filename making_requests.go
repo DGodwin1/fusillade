@@ -16,6 +16,8 @@ type Response struct {
 	ResponseTime    int64
 }
 
+type Connection struct {}
+
 func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
 	// all of the necessary information. CalculateMSDelta is moved
@@ -48,15 +50,25 @@ func MakeConcurrentRequests(url string, count int) []Response {
 
 	var responses []Response
 	resultChannel := make(chan Response)
+	connections := make(chan Connection, count)
 
-	// Do the concurrent stuff.
+	// Throttle the amount of concurrency with a channel.
+	for i := 0; i<5; i++{
+		connections <- Connection{}
+	}
+
 	for i := 0; i < count; i++ {
-		//request a lock: good to go.
-		//if good, acquire.
 		go func(i int) {
+			// Acquire a connection.
+			c := <-connections
+
+			// Make the request.
 			resultChannel <- MakeRequest(url)
-			//release the lock: will allow another in.
+
+			// Give back the connection so that another task can use it.
+			connections <- c
 		}(i)
+
 	}
 
 	// You've done the speedy stuff. Now unpack the channel
