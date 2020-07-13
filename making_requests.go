@@ -9,7 +9,6 @@ import (
 type Response struct {
 	StatusCode int
 	//TODO: ID int. Might be user when it comes to concurrency to order the requests based on their ID.
-
 	//Store timings for a particular request.
 	RequestStart    time.Time
 	RequestFinished time.Time
@@ -42,9 +41,7 @@ func MakeRequest(url string) Response {
 }
 
 func MakeConcurrentRequests(url string, count int) []Response {
-	// MakeConcurrentRequests is, for all intents and purposes,
-	// a wrapper function that facilitates concurrent execution
-	// of MakeRequest. Rather than force MakeRequest to handle requests,
+	// Rather than force MakeRequest to handle requests,
 	// reporting and concurrency, I'm pulling the concurrency out into
 	// something separate. Single responsibility and all that.
 
@@ -71,8 +68,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 
 	}
 
-	// You've done the speedy stuff. Now unpack the channel
-	// and place into a slice of Responses.
+	// You've done the speedy stuff. Now unpack it and return.
 	for i := 0; i < count; i++ {
 		result := <-resultChannel
 		responses = append(responses, result)
