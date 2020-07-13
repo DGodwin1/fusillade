@@ -51,15 +51,17 @@ func MakeConcurrentRequests(url string, count int) []Response {
 
 	// Do the concurrent stuff.
 	for i := 0; i < count; i++ {
+		//request a lock: good to go.
+		//if good, acquire.
 		go func(i int) {
 			resultChannel <- MakeRequest(url)
+			//release the lock: will allow another in.
 		}(i)
 	}
 
 	// You've done the speedy stuff. Now unpack the channel
 	// and place into a slice of Responses.
 	for i := 0; i < count; i++ {
-
 		result := <-resultChannel
 		responses = append(responses, result)
 	}
