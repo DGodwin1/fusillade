@@ -47,26 +47,28 @@ func MakeConcurrentRequests(url string, count int) []Response {
 
 	var responses []Response
 	resultChannel := make(chan Response)
-	connections := make(chan Connection, count)
 
-	// Throttle the amount of concurrency with a channel.
-	for i := 0; i<5; i++{
-		connections <- Connection{}
-	}
+	ticker := time.NewTicker(100*time.Millisecond)
+	done := make(chan bool)
+	requestsSent := 0
 
-	for i := 0; i < count; i++ {
-		go func(i int) {
-			// Acquire a connection.
-			c := <-connections
+	go func(){
+		for {
+			select {
+			case <-done:
+				return
 
-			// Make the request.
-			resultChannel <- MakeRequest(url)
-
-			// Give back the connection so that another task can use it.
-			connections <- c
-		}(i)
-
-	}
+			case _ = <-ticker.C:
+				if requestsSent == count{
+					done <-true
+				}
+				go func() {
+					requestsSent++
+					resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
+				}()
+			}
+		}
+	}()
 
 	// You've done the speedy stuff. Now unpack it and return.
 	for i := 0; i < count; i++ {

@@ -90,4 +90,22 @@ func TestConcurrency(t *testing.T) {
 
 	})
 
+	t.Run("Slow server responds slowly... :/", func(t *testing.T){
+		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// The point of this is that we should expect to see a channel with 5 responses in it, even
+			// though the requests have been sent faster than the server can respond to them.
+			time.Sleep(3*time.Second)
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		got := MakeConcurrentRequests(FakeServer.URL, 10)
+		want := 10
+
+		if len(got) != want {
+			t.Errorf("got %d, want %d", len(got), want)
+		}
+
+
+	})
+
 }
