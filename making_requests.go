@@ -49,7 +49,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	resultChannel := make(chan Response)
 
 	// Setup a new ticker that ticks every 100 milliseconds.
-	ticker := time.NewTicker(100*time.Millisecond)
+	ticker := time.NewTicker(10*time.Millisecond)
 	requestsSent := 0
 
 	// Send a request every 100 milliseconds.
@@ -85,7 +85,7 @@ type UserJourney struct{
 	Codes map[int]int
 	// We should store the response time for the whole user journey
 	// starting with the first URL's start and then the last URLs completion.
-	ResponseTime int
+	//TODO: JourneyResponseTime int. This should capture the start and end of the whole journey.
 }
 
 func WalkJourney(urls []string) UserJourney{
