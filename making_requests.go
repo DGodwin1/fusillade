@@ -25,7 +25,6 @@ func MakeRequest(url string) Response {
 	// the function actually making a request.
 	start := time.Now()
 	request, err := http.Get(url)
-	fmt.Println("DONE")
 	end := time.Now()
 
 	if err != nil{
@@ -64,7 +63,6 @@ func MakeConcurrentRequests(url string, count int) []Response {
 				}
 				go func() {
 					requestsSent++
-					fmt.Println("Going to send request now...")
 					// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
 					// that are then visited by it.
 					resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
@@ -84,16 +82,34 @@ func MakeConcurrentRequests(url string, count int) []Response {
 }
 
 type UserJourney struct{
-	ResponseCodes map[int]int
+	Codes map[int]int
 }
 
 func WalkJourney(urls []string) UserJourney{
-	//make a map and add to the structure.
-	var Responses = map[int]int{200:2}
+	// WalkJourney goes through a list of URLs
+	// and reports back the major details of each request.
 
-	return UserJourney{
-		Responses,
+	// Make a response codes map and then add stuff to the map
+	// then add that map to the results struct to get around all these
+	// nil pointer bits.
+	var Codes = map[int]int{}
+
+	// Loop through each URL and add the response code to
+	// the UserJourney struct.
+	for _, u := range urls{
+		// Make the request
+		r := MakeRequest(u)
+
+		// Add the status code from the request
+		// we have just sent to the results struct.
+		Codes[r.StatusCode] += 1
 	}
+
+	//You've got a load of different data points, now add them to the results
+	results := UserJourney{Codes}
+
+	return results
+
 }
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
