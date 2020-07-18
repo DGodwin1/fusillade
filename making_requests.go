@@ -8,7 +8,6 @@ import (
 
 type Response struct {
 	StatusCode int
-	//TODO: ID int. Might be user when it comes to concurrency to order the requests based on their ID.
 	//Store timings for a particular request.
 	RequestStart    time.Time
 	RequestFinished time.Time
@@ -82,31 +81,37 @@ func MakeConcurrentRequests(url string, count int) []Response {
 }
 
 type UserJourney struct{
+	Responses map[int]Response
 	Codes map[int]int
+	// We should store the response time for the whole user journey
+	// starting with the first URL's start and then the last URLs completion.
+	ResponseTime int
 }
 
 func WalkJourney(urls []string) UserJourney{
 	// WalkJourney goes through a list of URLs
 	// and reports back the major details of each request.
 
-	// Make a response codes map and then add stuff to the map
-	// then add that map to the results struct to get around all these
-	// nil pointer bits.
 	var Codes = map[int]int{}
+	// Responses can store the numerical ID of the request that has been sent
+	// and store the Response data if it wants it.
+	var Responses = map[int]Response{}
 
 	// Loop through each URL and add the response code to
 	// the UserJourney struct.
-	for _, u := range urls{
+	for i, u := range urls{
 		// Make the request
 		r := MakeRequest(u)
 
 		// Add the status code from the request
 		// we have just sent to the results struct.
 		Codes[r.StatusCode] += 1
+		Responses[i] = r
 	}
 
 	//You've got a load of different data points, now add them to the results
-	results := UserJourney{Codes}
+
+	results := UserJourney{Responses, Codes}
 
 	return results
 
