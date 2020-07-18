@@ -17,6 +17,7 @@ type Response struct {
 
 type Connection struct {}
 
+
 func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
 	// all of the necessary information. CalculateMSDelta is moved
@@ -42,9 +43,9 @@ func MakeRequest(url string) Response {
 }
 
 func MakeConcurrentRequests(url string, count int) []Response {
-	// Rather than force MakeRequest to handle requests,
-	// reporting and concurrency, I'm pulling the concurrency out into
-	// something separate. Single responsibility and all that.
+	// MakeConcurrentRequests makes requests in a constant
+	// fashion. It uses a ticker that, at present, is hard coded
+	// to send a request every 100 milliseconds.
 
 	var responses []Response
 	resultChannel := make(chan Response)
@@ -53,6 +54,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	ticker := time.NewTicker(100*time.Millisecond)
 	requestsSent := 0
 
+	// Send a request every 100 milliseconds.
 	go func(){
 		for {
 			select {
@@ -63,6 +65,8 @@ func MakeConcurrentRequests(url string, count int) []Response {
 				go func() {
 					requestsSent++
 					fmt.Println("Going to send request now...")
+					// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
+					// that are then visited by it.
 					resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
 				}()
 			}
@@ -77,6 +81,19 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	}
 
 	return responses
+}
+
+type UserJourney struct{
+	ResponseCodes map[int]int
+}
+
+func WalkJourney(urls []string) UserJourney{
+	//make a map and add to the structure.
+	var Responses = map[int]int{200:2}
+
+	return UserJourney{
+		Responses,
+	}
 }
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
