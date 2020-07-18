@@ -24,6 +24,7 @@ func MakeRequest(url string) Response {
 	// the function actually making a request.
 	start := time.Now()
 	request, err := http.Get(url)
+	fmt.Println("DONE")
 	end := time.Now()
 
 	if err != nil{
@@ -48,27 +49,26 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	var responses []Response
 	resultChannel := make(chan Response)
 
+	// Setup a new ticker that ticks every 100 milliseconds.
 	ticker := time.NewTicker(100*time.Millisecond)
-	done := make(chan bool)
 	requestsSent := 0
 
 	go func(){
 		for {
 			select {
-			case <-done:
-				return
-
 			case _ = <-ticker.C:
 				if requestsSent == count{
-					done <-true
+					return
 				}
 				go func() {
 					requestsSent++
+					fmt.Println("Going to send request now...")
 					resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
 				}()
 			}
 		}
 	}()
+
 
 	// You've done the speedy stuff. Now unpack it and return.
 	for i := 0; i < count; i++ {
