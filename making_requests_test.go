@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -77,11 +76,11 @@ func TestConcurrency(t *testing.T) {
 
 	})
 
-	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T){
+	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T) {
 		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// The point of this is that we should expect to see a channel with 10 responses in it, even
 			// though the requests have been sent to the server faster than the server is able to respond to all of them.
-			time.Sleep(1*time.Second)
+			time.Sleep(5 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 
@@ -94,7 +93,7 @@ func TestConcurrency(t *testing.T) {
 	})
 }
 
-func TestWalker(t *testing.T){
+func TestWalker(t *testing.T) {
 	t.Run("Test that Walker struct has 2 200 response codes when given two good urls", func(t *testing.T) {
 		// Setup the servers
 		Server1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -102,45 +101,45 @@ func TestWalker(t *testing.T){
 		}))
 
 		Server2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			time.Sleep(2 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 
 		// Setup the URLS to hit.
 		var URLS = []string{Server1.URL, Server2.URL}
 
-		// Work will be a UserJourney struct that we can then pull data out of.
+		// 'work' will be a UserJourney struct that we can pull data out of.
 		work := WalkJourney(URLS)
 
-		// We should be able to look at the ResponseCodes map that is in the struct and see what value
-		// is held there for 200 response codes.
+		// Reach into the ResponseCodes map that is stored in 'work' and see what's held there for 200 codes.
 		got := work.Codes[200]
 		want := 2
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
-		t.Run("Test that Walker struct has 1 200 and 1 404 when it gets one good and one bad URL", func(t *testing.T) {
-			//setup server.
-			GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-			}))
+	t.Run("Test that Walker struct has 1 200 and 1 404 when it gets one good and one bad URL", func(t *testing.T) {
+		//setup server.
+		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
 
-			BadServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusNotFound)
-			}))
+		BadServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}))
 
-			//Setup the URLS to hit.
-			var URLS = []string{GoodServer.URL, BadServer.URL}
+		//Setup the URLS to hit.
+		var URLS = []string{GoodServer.URL, BadServer.URL}
 
-			work := WalkJourney(URLS)
-			got200 := work.Codes[200]
-			got404 := work.Codes[404]
-			want := 1
+		work := WalkJourney(URLS)
+		got200 := work.Codes[200]
+		got404 := work.Codes[404]
+		want := 1
 
-			if got200 != want || got404 != want{
-				t.Errorf("got 200 of %d, 404 of %d. Both should be %d", got200, got404, want)
-			}
+		if got200 != want || got404 != want {
+			t.Errorf("got 200 of %d, 404 of %d. Both should be %d", got200, got404, want)
+		}
 
 	})
 }
