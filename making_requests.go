@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -14,8 +13,7 @@ type Response struct {
 	ResponseTime    int64
 }
 
-type Connection struct {}
-
+type Connection struct{}
 
 func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
@@ -26,8 +24,7 @@ func MakeRequest(url string) Response {
 	request, err := http.Get(url)
 	end := time.Now()
 
-	if err != nil{
-		fmt.Println(err)
+	if err != nil {
 		return Response{} //for now, just return an empty response.
 	}
 
@@ -49,27 +46,21 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	resultChannel := make(chan Response)
 
 	// Setup a new ticker that ticks every 100 milliseconds.
-	ticker := time.NewTicker(10*time.Millisecond)
+	ticker := time.NewTicker(10 * time.Millisecond)
 	requestsSent := 0
 
 	// Send a request every 100 milliseconds.
-	go func(){
-		for {
-			select {
-			case _ = <-ticker.C:
-				if requestsSent == count{
-					return
-				}
-				go func() {
-					requestsSent++
-					// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
-					// that are then visited by it.
-					resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
-				}()
-			}
+	for range ticker.C {
+		if requestsSent == count {
+			break
 		}
-	}()
-
+		go func() {
+			requestsSent++
+			// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
+			// that are then visited by it.
+			resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
+		}()
+	}
 
 	// You've done the speedy stuff. Now unpack it and return.
 	for i := 0; i < count; i++ {
@@ -80,17 +71,17 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	return responses
 }
 
-type UserJourney struct{
-	Responses map[int]Response
-	Codes map[int]int
-	// We should store the response time for the whole user journey
-	// starting with the first URL's start and then the last URLs completion.
-	//TODO: JourneyResponseTime int. This should capture the start and end of the whole journey.
+type UserJourney struct {
+	Responses             map[int]Response
+	Codes                 map[int]int
+	JourneyStart          time.Time
+	JourneyEnd            time.Time
+	JourneyResponseTimeMS int64
 }
 
-func WalkJourney(urls []string) UserJourney{
-	// WalkJourney goes through a list of URLs
-	// and reports back the major details of each request.
+func WalkJourney(urls []string) UserJourney {
+	// WalkJourney goes through a user journey (essentially a list of URLs)
+	// and reports back how that user journey went.
 
 	var Codes = map[int]int{}
 	// Responses can store the numerical ID of the request that has been sent
@@ -99,7 +90,7 @@ func WalkJourney(urls []string) UserJourney{
 
 	// Loop through each URL and add the response code to
 	// the UserJourney struct.
-	for i, u := range urls{
+	for i, u := range urls {
 		// Make the request
 		r := MakeRequest(u)
 
@@ -109,11 +100,13 @@ func WalkJourney(urls []string) UserJourney{
 		Responses[i] = r
 	}
 
-	//You've got a load of different data points, now add them to the results
+	// You've got a load of different data points, now add them to the results
 
-	results := UserJourney{Responses, Codes}
+	StartTime := Responses[0].RequestStart
+	EndTime := Responses[len(urls)-1].RequestFinished
+	MilliSecondDelta := CalculateMSDelta(StartTime, EndTime)
 
-	return results
+	return UserJourney{Responses, Codes, StartTime, EndTime, MilliSecondDelta}
 
 }
 
