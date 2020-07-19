@@ -80,12 +80,12 @@ func TestConcurrency(t *testing.T) {
 		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// The point of this is that we should expect to see a channel with 10 responses in it, even
 			// though the requests have been sent to the server faster than the server is able to respond to all of them.
-			time.Sleep(5 * time.Second)
+			time.Sleep(1 * time.Millisecond)
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeConcurrentRequests(SlowServer.URL, 10)
-		want := 10
+		got := MakeConcurrentRequests(SlowServer.URL, 5)
+		want := 5
 
 		if len(got) != want {
 			t.Errorf("got %d, want %d", len(got), want)
@@ -101,7 +101,6 @@ func TestWalker(t *testing.T) {
 		}))
 
 		Server2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			time.Sleep(2 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 
