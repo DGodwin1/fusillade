@@ -112,3 +112,30 @@ func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// from the end. It represents the final result in milliseconds.
 	return end.Sub(start).Milliseconds()
 }
+
+func StatusOkay(status int) bool {
+	// StatusOkay takes a status code and says whether
+	// or not this is ok with respect to a user journey.
+
+	switch{
+	// 'Continue' https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100
+	case status >= 100 && status <=199:
+		return true
+	// Response accepted
+	case status >= 200 && status <=299:
+		return true
+	// Redirects allowed
+	case status >= 300 && status <=399:
+		return true
+	// Client error
+	case status >= 400 && status <=499:
+		return false
+	// Server error
+	case status >= 500:
+		return false
+	default:
+		// Working on the assumption that if you didn't get
+		// a response code then the request went wrong somewhere.
+		return false
+	}
+}

@@ -8,8 +8,16 @@ import (
 )
 
 func AssertResponseCode(t *testing.T, got, want int) {
+	t.Helper()
 	if got != want {
 		t.Errorf("Got %d, want %d", got, want)
+	}
+}
+
+func AssertStatusIsOkay(t *testing.T, got, want bool){
+	t.Helper()
+	if got != want{
+		t.Errorf("got %v, want %v", got, want)
 	}
 }
 
@@ -141,7 +149,7 @@ func TestWalker(t *testing.T) {
 		}
 
 	})
-
+	//TODO: get test to pass
 	t.Run("Test that Walker struct does not request further URLs after hitting a 404", func(t *testing.T) {
 		//setup servers
 		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -160,9 +168,24 @@ func TestWalker(t *testing.T) {
 		got := len(work.Responses)
 		want := 2
 
-		if got != want{
+		if got != want {
 			t.Errorf("requested %d URLs. Should have requested %d", got, want)
 		}
 
+	})
+}
+
+func TestStatusOkay(t *testing.T) {
+	//TODO: make these table driven tests
+
+	t.Run("Test that status of 200 returns ok", func(t *testing.T){
+		got := StatusOkay(200)
+		want := true
+		AssertStatusIsOkay(t, got, want)
+	})
+	t.Run("Test that 400 returns bad", func(t *testing.T){
+		got := StatusOkay(400)
+		want := false
+		AssertStatusIsOkay(t, got, want)
 	})
 }
