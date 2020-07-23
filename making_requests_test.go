@@ -14,13 +14,6 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
-func AssertStatusIsOkay(t *testing.T, got, want bool){
-	t.Helper()
-	if got != want{
-		t.Errorf("got %v, want %v", got, want)
-	}
-}
-
 func TestGetter(t *testing.T) {
 	t.Run("MakeRequest returns 200 on 'ok' URL", func(t *testing.T) {
 
@@ -178,14 +171,29 @@ func TestWalker(t *testing.T) {
 func TestStatusOkay(t *testing.T) {
 	//TODO: make these table driven tests
 
-	t.Run("Test that status of 200 returns ok", func(t *testing.T){
-		got := StatusOkay(200)
-		want := true
-		AssertStatusIsOkay(t, got, want)
-	})
-	t.Run("Test that 400 returns bad", func(t *testing.T){
-		got := StatusOkay(400)
-		want := false
-		AssertStatusIsOkay(t, got, want)
-	})
-}
+	var StatusTests = []struct{
+		c int //input
+		want bool //ok?
+	}{
+		{0, false},
+		{100, true},
+		{199, true},
+		{200, true},
+		{201, true},
+		{299, true},
+		{300, true},
+		{399, true},
+		{400, false},
+		{499, false},
+		{500, false},
+		{501, false},
+		{599, false},
+		{599, false},
+	}
+		for _, tt := range StatusTests{
+			got := StatusOkay(tt.c)
+			if got != tt.want{
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		}
+	}
