@@ -13,8 +13,6 @@ type Response struct {
 	ResponseTime    int64
 }
 
-type Connection struct{}
-
 func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
 	// all of the necessary information. CalculateMSDelta is moved
@@ -46,9 +44,8 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	resultChannel := make(chan Response)
 
 	// Setup a new ticker that ticks every 100 milliseconds.
-	ticker := time.NewTicker(10 * time.Millisecond)
+	ticker := time.NewTicker(100 * time.Millisecond)
 	requestsSent := 0
-
 	// Send a request every 100 milliseconds.
 	for range ticker.C {
 		if requestsSent == count {
@@ -71,7 +68,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	return responses
 }
 
-type UserJourney struct {
+type UserJourneyResult struct {
 	Responses             map[int]Response
 	Codes                 map[int]int
 	JourneyStart          time.Time
@@ -79,7 +76,7 @@ type UserJourney struct {
 	JourneyResponseTimeMS int64
 }
 
-func WalkJourney(urls []string) UserJourney {
+func WalkJourney(urls []string) UserJourneyResult {
 	// WalkJourney goes through a user journey (essentially a list of URLs)
 	// and reports back how that user journey went.
 
@@ -101,12 +98,11 @@ func WalkJourney(urls []string) UserJourney {
 	}
 
 	// You've got a load of different data points, now add them to the results
-
 	StartTime := Responses[0].RequestStart
 	EndTime := Responses[len(urls)-1].RequestFinished
 	MilliSecondDelta := CalculateMSDelta(StartTime, EndTime)
 
-	return UserJourney{Responses, Codes, StartTime, EndTime, MilliSecondDelta}
+	return UserJourneyResult{Responses, Codes, StartTime, EndTime, MilliSecondDelta}
 
 }
 
