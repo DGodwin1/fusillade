@@ -169,8 +169,6 @@ func TestWalker(t *testing.T) {
 }
 
 func TestStatusOkay(t *testing.T) {
-	//TODO: make these table driven tests
-
 	var StatusTests = []struct{
 		c int //input
 		want bool //ok?
