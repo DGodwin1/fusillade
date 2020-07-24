@@ -93,11 +93,17 @@ func WalkJourney(urls []string) UserJourneyResult {
 
 		// Add the status code from the request
 		// we have just sent to the results struct.
-		Codes[r.StatusCode] += 1
 		Responses[i] = r
+		Codes[r.StatusCode] += 1
+
+
+		// Should we request the next URL or not?
+		if !StatusOkay(r.StatusCode){
+			break
+		}
 	}
 
-	// You've got a load of different data points, now add them to the results
+	// You've completed the walk, now record how long that took (start, finish, delta)
 	StartTime := Responses[0].RequestStart
 	EndTime := Responses[len(urls)-1].RequestFinished
 	MilliSecondDelta := CalculateMSDelta(StartTime, EndTime)

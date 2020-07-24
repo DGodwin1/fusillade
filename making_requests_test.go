@@ -142,9 +142,8 @@ func TestWalker(t *testing.T) {
 		}
 
 	})
-	//TODO: get test to pass
+
 	t.Run("Test that Walker struct does not request further URLs after hitting a 404", func(t *testing.T) {
-		//setup servers
 		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
@@ -155,8 +154,11 @@ func TestWalker(t *testing.T) {
 
 		var URLS = []string{GoodServer.URL, BadServer.URL, GoodServer.URL}
 
-		// We should only get two pieces of response data in the struct.
-		// One for the first GoodServer.URL and another for the BadServer.URL.
+		// We should only get two responses in the struct:
+		// one for the first GoodServer.URL and another for the BadServer.URL.
+		// We should include the BadServer.URL response it was _part_ of the user's
+		// journey. They would have experienced that page/that blocker so it should show
+		// in the overall metrics. The final GoodServer.URL, on the other hand, should not.
 		work := WalkJourney(URLS)
 		got := len(work.Responses)
 		want := 2
@@ -164,6 +166,8 @@ func TestWalker(t *testing.T) {
 		if got != want {
 			t.Errorf("requested %d URLs. Should have requested %d", got, want)
 		}
+
+		//TODO: make sure the STATUS code in the struct is correct as well: 1 good, one bad.
 
 	})
 }
