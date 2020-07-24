@@ -106,7 +106,7 @@ func TestWalker(t *testing.T) {
 		}))
 
 		// Setup the URLS to hit.
-		var URLS = []string{Server1.URL, Server2.URL}
+		URLS := []string{Server1.URL, Server2.URL}
 
 		// 'work' will be a UserJourney struct that we can pull data out of.
 		work := WalkJourney(URLS)
@@ -128,7 +128,7 @@ func TestWalker(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound)
 		}))
 
-		var URLS = []string{GoodServer.URL, BadServer.URL}
+		URLS := []string{GoodServer.URL, BadServer.URL}
 
 		work := WalkJourney(URLS)
 		got200 := work.Codes[200]
@@ -150,7 +150,7 @@ func TestWalker(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound)
 		}))
 
-		var URLS = []string{GoodServer.URL, BadServer.URL, GoodServer.URL}
+		URLS := []string{GoodServer.URL, BadServer.URL, GoodServer.URL}
 
 		// We should only get two responses in the struct:
 		// one for the first GoodServer.URL and another for the BadServer.URL.
@@ -172,6 +172,36 @@ func TestWalker(t *testing.T) {
 
 		if got200 != CodeAmount || got404 != CodeAmount {
 			t.Errorf("got 200 of %d, 404 of %d. Both should be %d", got200, got404, want)
+		}
+
+	})
+
+	t.Run("Finished user journey should be listed as finished", func(t *testing.T) {
+		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		BadServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}))
+
+		var FinishedTests = []struct {
+			journey []string
+			want    bool
+		}{
+			{[]string{GoodServer.URL}, true},
+			{[]string{GoodServer.URL, GoodServer.URL}, true},
+			{[]string{BadServer.URL}, true},
+			{[]string{GoodServer.URL, BadServer.URL}, true},
+			{[]string{BadServer.URL, BadServer.URL}, false},
+			{[]string{BadServer.URL, GoodServer.URL}, false},
+			{[]string{GoodServer.URL, BadServer.URL, GoodServer.URL}, false},
+		}
+
+		for _, tt := range FinishedTests {
+			got := WalkJourney(tt.journey)
+			if got.Finished != tt.want {
+				t.Errorf("Got %v, wanted %v", got.Finished, tt.want)
+			}
 		}
 
 	})

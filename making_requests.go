@@ -75,6 +75,7 @@ type UserJourneyResult struct {
 	JourneyStart          time.Time
 	JourneyEnd            time.Time
 	JourneyResponseTimeMS int64
+	Finished              bool
 }
 
 func WalkJourney(urls []string) UserJourneyResult {
@@ -82,6 +83,7 @@ func WalkJourney(urls []string) UserJourneyResult {
 	// and reports back how it went.
 
 	var Codes = map[int]int{}
+	var Finished bool
 
 	// Responses stores an ID for a request (when it was sent)
 	// and the response that request generated.
@@ -106,7 +108,14 @@ func WalkJourney(urls []string) UserJourneyResult {
 	EndTime := Responses[len(urls)-1].RequestFinished
 	MilliSecondDelta := CalculateMSDelta(StartTime, EndTime)
 
-	return UserJourneyResult{Responses, Codes, StartTime, EndTime, MilliSecondDelta}
+	// Did we walk the full journey?
+	if len(Responses) == len(urls) {
+		Finished = true
+	} else {
+		Finished = false
+	}
+
+	return UserJourneyResult{Responses, Codes, StartTime, EndTime, MilliSecondDelta, Finished}
 
 }
 
