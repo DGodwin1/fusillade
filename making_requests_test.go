@@ -120,7 +120,6 @@ func TestWalker(t *testing.T) {
 		}
 	})
 	t.Run("Test that Walker struct has 1 200 and 1 404 when it gets one good and one bad URL", func(t *testing.T) {
-		//setup server.
 		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
@@ -129,7 +128,6 @@ func TestWalker(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound)
 		}))
 
-		//Setup the URLS to hit.
 		var URLS = []string{GoodServer.URL, BadServer.URL}
 
 		work := WalkJourney(URLS)
@@ -167,14 +165,21 @@ func TestWalker(t *testing.T) {
 			t.Errorf("requested %d URLs. Should have requested %d", got, want)
 		}
 
-		//TODO: make sure the STATUS code in the struct is correct as well: 1 good, one bad.
+		// Do we have the correct status codes?
+		got200 := work.Codes[200]
+		got404 := work.Codes[404]
+		CodeAmount := 1
+
+		if got200 != CodeAmount || got404 != CodeAmount {
+			t.Errorf("got 200 of %d, 404 of %d. Both should be %d", got200, got404, want)
+		}
 
 	})
 }
 
 func TestStatusOkay(t *testing.T) {
-	var StatusTests = []struct{
-		c int //input
+	var StatusTests = []struct {
+		c    int  //input
 		want bool //ok?
 	}{
 		{0, false},
@@ -192,10 +197,10 @@ func TestStatusOkay(t *testing.T) {
 		{599, false},
 		{599, false},
 	}
-		for _, tt := range StatusTests{
-			got := StatusOkay(tt.c)
-			if got != tt.want{
-				t.Errorf("got %v, want %v", got, tt.want)
-			}
+	for _, tt := range StatusTests {
+		got := StatusOkay(tt.c)
+		if got != tt.want {
+			t.Errorf("got %v, want %v", got, tt.want)
 		}
 	}
+}

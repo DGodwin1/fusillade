@@ -85,20 +85,16 @@ func WalkJourney(urls []string) UserJourneyResult {
 	// and store the Response data if it wants it.
 	var Responses = map[int]Response{}
 
-	// Loop through each URL and add the response code to
-	// the UserJourney struct.
+	// Loop through the URLs, add the responses
+	// and update the status code count.
 	for i, u := range urls {
-		// Make the request
 		r := MakeRequest(u)
 
-		// Add the status code from the request
-		// we have just sent to the results struct.
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
 
-
-		// Should we request the next URL or not?
-		if !StatusOkay(r.StatusCode){
+		// Should we request the next URL?
+		if !StatusOkay(r.StatusCode) {
 			break
 		}
 	}
@@ -123,18 +119,18 @@ func StatusOkay(status int) bool {
 	// StatusOkay takes a status code and says whether
 	// or not this is ok with respect to a user journey.
 
-	switch{
+	switch {
 	// 'Continue' https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100
-	case status >= 100 && status <=199:
+	case status >= 100 && status <= 199:
 		return true
 	// Response accepted
-	case status >= 200 && status <=299:
+	case status >= 200 && status <= 299:
 		return true
 	// Redirects allowed
-	case status >= 300 && status <=399:
+	case status >= 300 && status <= 399:
 		return true
 	// Client error
-	case status >= 400 && status <=499:
+	case status >= 400 && status <= 499:
 		return false
 	// Server error
 	case status >= 500:
