@@ -46,6 +46,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	// Setup a new ticker that ticks every 100 milliseconds.
 	ticker := time.NewTicker(100 * time.Millisecond)
 	requestsSent := 0
+
 	// Send a request every 100 milliseconds.
 	for range ticker.C {
 		if requestsSent == count {
@@ -77,12 +78,13 @@ type UserJourneyResult struct {
 }
 
 func WalkJourney(urls []string) UserJourneyResult {
-	// WalkJourney goes through a user journey (essentially a list of URLs)
-	// and reports back how that user journey went.
+	// WalkJourney goes through a user journey (a slice of URLs)
+	// and reports back how it went.
 
 	var Codes = map[int]int{}
-	// Responses can store the numerical ID of the request that has been sent
-	// and store the Response data if it wants it.
+
+	// Responses stores an ID for a request (when it was sent)
+	// and the response that request generated.
 	var Responses = map[int]Response{}
 
 	// Loop through the URLs, add the responses
