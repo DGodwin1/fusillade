@@ -20,7 +20,8 @@ import (
 	}
 
 	func main(){
-		Get all the bits together so you can close over 'em.
+		//Get all the bits together so you can close over 'em.
+		ticker := time.NewTicker(100*time.Millisecond)
 		resultChannel := make(chan Response)
 		count := 100
 
@@ -28,7 +29,6 @@ import (
 		DoConcurrentTask(func() {
 			resultChannel <- MakeRequest("https://www.google.com")
 		}, count, *ticker)
-
 
 		// You've done the speedy stuff, now pull stuff out.
 		var responses []Response
@@ -42,28 +42,4 @@ import (
 			fmt.Println(v.ResponseTime)
 		}
 
-
-		ticker := time.NewTicker(100 * time.Millisecond)
-		var results []UserJourneyResult
-		resultChannel := make(chan UserJourneyResult)
-		count := 10
-
-		var urls = []string{"https://www.google.com", "https://wwww.tatler.com"}
-
-		DoConcurrentTask(func(){
-					resultChannel <- WalkJourney(urls)},
-					count, *ticker)
-
-
-		for i := 0; i < count; i++ {
-			result := <-resultChannel
-			results = append(results, result)
-		}
-
-		fmt.Println("Done unpacking")
-
-		// Now let's go through all of the codes you received in the process.
-		for _, v := range results{
-			fmt.Println(v.Codes)
-		}
 }
