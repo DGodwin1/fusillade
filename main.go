@@ -15,9 +15,8 @@ import (
 			resultChannel <- WalkJourney([]string{"there should be some urls here"})
 		}, count, *ticker)
 
-		// You've done the speedy stuff, now pull stuff out.
+		// You've done the speedy stuff, now unload from the channel.
 		var responses []UserJourneyResult
-
 		for i := 0; i < count; i++ {
 			result := <-resultChannel
 			responses = append(responses, result)

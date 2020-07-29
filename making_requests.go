@@ -13,6 +13,9 @@ type Response struct {
 	ResponseTime    int64
 }
 
+//TODO: pass in the dependency of time. Create a function that returns
+// time.Now(). Under test, the function can return set timestamps where
+// the latency score will be correct by virtue of it being 'tricked'. 
 func MakeRequest(url string) Response {
 	// MakeRequest takes a URL and returns a Response containing
 	// all of the necessary information. CalculateMSDelta is moved
