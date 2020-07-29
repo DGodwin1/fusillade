@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -87,7 +86,7 @@ func DoConcurrentUserJourney(url []string, count int) []UserJourneyResult {
 		}
 			go func() {
 			requestsSent++
-			resultChannel <- WalkJourney(url, requestsSent)
+			resultChannel <- WalkJourney(url)
 		}()
 	}
 
@@ -109,6 +108,7 @@ type UserJourneyResult struct {
 	Finished              bool
 }
 
+
 func WalkJourney(urls []string) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
 	// and reports back how it went.
@@ -126,6 +126,7 @@ func WalkJourney(urls []string) UserJourneyResult {
 		r := MakeRequest(u)
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
+
 
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
@@ -148,6 +149,22 @@ func WalkJourney(urls []string) UserJourneyResult {
 	return UserJourneyResult{Responses, Codes, StartTime, EndTime, MilliSecondDelta, Finished}
 
 }
+
+func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
+	// DoConcurrentTask takes in a function and run it concurrently for a set number of ticks
+	TasksComplete := 0
+	for range ticker.C {
+		if TasksComplete == count {
+			break
+		}
+		go func() {
+			TasksComplete++
+			task()
+		}()
+	}
+}
+
+
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
