@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -56,7 +57,7 @@ func MakeConcurrentRequests(url string, count int) []Response {
 			requestsSent++
 			// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
 			// that are then visited by it.
-			resultChannel <- MakeRequest(url) //TODO: could just pass in _any_ function that is then called whose result is shoved into channel.
+			resultChannel <- MakeRequest(url)
 		}()
 	}
 
@@ -67,6 +68,36 @@ func MakeConcurrentRequests(url string, count int) []Response {
 	}
 
 	return responses
+}
+
+func DoConcurrentUserJourney(url []string, count int) []UserJourneyResult {
+
+	//So this should be passed in and changed.
+	var results []UserJourneyResult
+	resultChannel := make(chan UserJourneyResult)
+
+	// Setup a new ticker that ticks every 100 milliseconds.
+	ticker := time.NewTicker(100 * time.Millisecond)
+	requestsSent := 0
+
+	// Send a request every 100 milliseconds.
+	for range ticker.C {
+		if requestsSent == count {
+			break
+		}
+			go func() {
+			requestsSent++
+			resultChannel <- WalkJourney(url, requestsSent)
+		}()
+	}
+
+	// You've done the speedy stuff. Now unpack it and return.
+	for i := 0; i < count; i++ {
+		result := <-resultChannel
+		results = append(results, result)
+	}
+
+	return results
 }
 
 type UserJourneyResult struct {
@@ -93,7 +124,6 @@ func WalkJourney(urls []string) UserJourneyResult {
 	// and update the status code count.
 	for i, u := range urls {
 		r := MakeRequest(u)
-
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
 
