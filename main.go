@@ -22,16 +22,15 @@ import (
 	func main(){
 		//Get all the bits together so you can close over 'em.
 		ticker := time.NewTicker(100*time.Millisecond)
-		resultChannel := make(chan Response)
+		resultChannel := make(chan UserJourneyResult)
 		count := 100
 
-
 		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest("https://www.google.com")
+			resultChannel <- WalkJourney([]string{"there should be some urls here"})
 		}, count, *ticker)
 
 		// You've done the speedy stuff, now pull stuff out.
-		var responses []Response
+		var responses []UserJourneyResult
 
 		for i := 0; i < count; i++ {
 			result := <-resultChannel
@@ -39,7 +38,7 @@ import (
 		}
 
 		for _, v := range responses{
-			fmt.Println(v.ResponseTime)
+			fmt.Println(v.Codes)
 		}
 
 }
