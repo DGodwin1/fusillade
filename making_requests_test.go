@@ -50,16 +50,6 @@ func TestLatency(t *testing.T) {
 			t.Errorf("got %d, wanted %d", got, want)
 		}
 	})
-
-	t.Run("Test latency checker is 30", func(t *testing.T) {
-		start := time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
-		finish := time.Date(2019, 1, 1, 1, 1, 1, 40000000, time.UTC)
-		got := CalculateMSDelta(start, finish)
-		var want int64 = 30
-		if got != want {
-			t.Errorf("got %d, wanted %d", got, want)
-		}
-	})
 }
 
 func TestConcurrency(t *testing.T) {
@@ -68,11 +58,26 @@ func TestConcurrency(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeConcurrentRequests(FakeServer.URL, 20)
+		ticker := time.NewTicker(1*time.Millisecond)
+		resultChannel := make(chan Response)
+		count := 20
+
+		DoConcurrentTask(func() {
+			resultChannel <- MakeRequest(FakeServer.URL)
+		}, count, *ticker)
+
+		var responses []Response
+		for i := 0; i < count; i++ {
+			result := <-resultChannel
+			responses = append(responses, result)
+		}
+
+		// There should be 20 responses from the channel
+		got := len(responses)
 		want := 20
 
-		if len(got) != want {
-			t.Errorf("got %d, want %d", len(got), want)
+		if got != want {
+			t.Errorf("got %d, want %d", got, want)
 		}
 
 	})
@@ -85,7 +90,20 @@ func TestConcurrency(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeConcurrentRequests(SlowServer.URL, 10)
+		ticker := time.NewTicker(1*time.Millisecond)
+		resultChannel := make(chan Response)
+		count := 10
+
+		DoConcurrentTask(func() {
+			resultChannel <- MakeRequest(SlowServer.URL)
+		}, count, *ticker)
+
+		var got []Response
+		for i := 0; i < count; i++ {
+			result := <-resultChannel
+			got = append(got, result)
+		}
+
 		want := 10
 
 		if len(got) != want {
