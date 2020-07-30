@@ -154,7 +154,7 @@ func WalkJourney(urls []string) UserJourneyResult {
 }
 
 func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
-	// DoConcurrentTask takes in a function and runs it, concurrently, a set number of times.
+	// DoConcurrentTask takes in a function (a task) and runs it, concurrently, a set number of times.
 	TasksComplete := 0
 	for range ticker.C {
 		if TasksComplete == count {

@@ -194,7 +194,7 @@ func TestWalker(t *testing.T) {
 
 	})
 
-	t.Run("Finished user journey should be listed as finished", func(t *testing.T) {
+	t.Run("User journey finished status is listed properly", func(t *testing.T) {
 		GoodServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
