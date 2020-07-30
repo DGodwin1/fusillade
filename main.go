@@ -6,10 +6,14 @@ import (
 
 
 	func main(){
-		//Get all the bits together so you can close over 'em.
-		ticker := time.NewTicker(100*time.Millisecond)
+		//Parse the file.
+
+
+		//Now get prepare the test.
+		ticker := time.NewTicker(100*time.Millisecond) //TODO: take from config.
+		count := 100 //TODO: take from the config.
 		resultChannel := make(chan UserJourneyResult)
-		count := 100
+		//var urls []string //TODO: take from config.
 
 		DoConcurrentTask(func() {
 			resultChannel <- WalkJourney([]string{"there should be some urls here"})
@@ -21,6 +25,8 @@ import (
 			result := <-resultChannel
 			responses = append(responses, result)
 		}
+
+		//Now prepare the data.
 
 
 }
