@@ -3,9 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 type Config struct{
@@ -58,13 +55,18 @@ func GetParser(extension string) (Parser, error){
 	// Before giving a parser back, let's make sure we actually have one to offer
 	p, ok := Parser[extension]
 	if !ok{
-		return nil, errors.New("file format is not parsable")
+		return nil, errors.New("there isn't a parser available for this type of file")
 	}
 	return p, nil
 }
 
 func ParseConfigFile(path string) Config{
-	return GetParser(filepath.Ext(path)).Translate(path)
+	parser, err := GetParser(path)
+	if err != nil{
+		//TODO handle the error.
+	}
+
+	return parser.Translate(path)
 }
 
 
