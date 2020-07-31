@@ -14,14 +14,44 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
-func TestGetter(t *testing.T) {
-	t.Run("MakeRequest returns 200 on 'ok' URL", func(t *testing.T) {
+type Faker interface {
+	Start() time.Time
+	End() time.Time
+}
 
+type FakeTime struct{}
+
+func (FakeTime) Start() time.Time {
+	return time.Date(2019, 1, 1, 1, 1, 1, 0, time.UTC)
+}
+
+func (FakeTime) End() time.Time {
+	return time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
+}
+
+func TestGetter(t *testing.T) {
+	t.Run("MakeRequest latency response is 10MS", func(t *testing.T) {
+		FakeServer := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			writer.WriteHeader(http.StatusOK)
+		}))
+
+		faker := FakeTime{}
+
+		got := MakeRequest(FakeServer.URL, faker.Start, faker.End)
+		var want int64 = 10
+
+		if got.ResponseTime != want {
+			t.Errorf("Got %d, want %d", got.ResponseTime, want)
+		}
+
+	})
+
+	t.Run("MakeRequest returns 200 on 'ok' URL", func(t *testing.T) {
 		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeRequest(FakeServer.URL)
+		got := MakeRequest(FakeServer.URL, time.Now, time.Now)
 		want := http.StatusOK
 
 		AssertResponseCode(t, got.StatusCode, want)
@@ -33,11 +63,13 @@ func TestGetter(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
 
-		got := MakeRequest(FakeServer.URL)
+		got := MakeRequest(FakeServer.URL, time.Now, time.Now)
 		want := http.StatusInternalServerError
 
 		AssertResponseCode(t, got.StatusCode, want)
 	})
+
+
 }
 
 func TestLatency(t *testing.T) {
@@ -58,12 +90,12 @@ func TestConcurrency(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		ticker := time.NewTicker(1*time.Millisecond)
+		ticker := time.NewTicker(1 * time.Millisecond)
 		resultChannel := make(chan Response)
 		count := 20
 
 		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(FakeServer.URL)
+			resultChannel <- MakeRequest(FakeServer.URL, time.Now, time.Now)
 		}, count, *ticker)
 
 		var responses []Response
@@ -90,12 +122,12 @@ func TestConcurrency(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		ticker := time.NewTicker(1*time.Millisecond)
+		ticker := time.NewTicker(1 * time.Millisecond)
 		resultChannel := make(chan Response)
 		count := 10
 
 		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(SlowServer.URL)
+			resultChannel <- MakeRequest(SlowServer.URL, time.Now, time.Now)
 		}, count, *ticker)
 
 		var got []Response
@@ -224,6 +256,11 @@ func TestWalker(t *testing.T) {
 
 	})
 }
+
+//func TestThatReadingTime(t *testing.T){
+//	t.Run("10 second reading time isn't added to the overall response time")
+//	TODO: update the functions so that they take in time objects.
+//}
 
 func TestStatusOkay(t *testing.T) {
 	var StatusTests = []struct {
