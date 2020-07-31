@@ -13,93 +13,23 @@ type Response struct {
 	ResponseTime    int64
 }
 
-//TODO: pass in the dependency of time. Create a function that returns
-// time.Now(). Under test, the function can return set timestamps where
-// the latency score will be correct by virtue of it being 'tricked'. 
-func MakeRequest(url string) Response {
-	// MakeRequest takes a URL and returns a Response containing
-	// all of the necessary information. CalculateMSDelta is moved
-	// out to make the testing of time calculation independent of
-	// the function actually making a request.
-	start := time.Now()
+func MakeRequest(url string, start func() time.Time, end func() time.Time) Response {
+	// MakeRequest takes a URL and returns a Response.
+	s := start()
 	request, err := http.Get(url)
-	end := time.Now()
+	e := end()
 
 	if err != nil {
 		return Response{} //for now, just return an empty response.
 	}
 
-	rt := CalculateMSDelta(start, end)
+	rt := CalculateMSDelta(s, e)
 
 	return Response{StatusCode: request.StatusCode,
-		RequestStart:    start,
-		RequestFinished: end,
+		RequestStart:    s,
+		RequestFinished: e,
 		ResponseTime:    rt,
 	}
-}
-
-func MakeConcurrentRequests(url string, count int) []Response {
-	// MakeConcurrentRequests makes requests in a constant
-	// fashion. It uses a ticker that, at present, is hard coded
-	// to send a request every 100 milliseconds.
-
-	var responses []Response
-	resultChannel := make(chan Response)
-
-	// Setup a new ticker that ticks every 100 milliseconds.
-	ticker := time.NewTicker(100 * time.Millisecond)
-	requestsSent := 0
-
-	// Send a request every 100 milliseconds.
-	for range ticker.C {
-		if requestsSent == count {
-			break
-		}
-		go func() {
-			requestsSent++
-			// MakeRequest might instead look at a WalkJourney() function that takes in a slice of URLs
-			// that are then visited by it.
-			resultChannel <- MakeRequest(url)
-		}()
-	}
-
-	// You've done the speedy stuff. Now unpack it and return.
-	for i := 0; i < count; i++ {
-		result := <-resultChannel
-		responses = append(responses, result)
-	}
-
-	return responses
-}
-
-func DoConcurrentUserJourney(url []string, count int) []UserJourneyResult {
-
-	//So this should be passed in and changed.
-	var results []UserJourneyResult
-	resultChannel := make(chan UserJourneyResult)
-
-	// Setup a new ticker that ticks every 100 milliseconds.
-	ticker := time.NewTicker(100 * time.Millisecond)
-	requestsSent := 0
-
-	// Send a request every 100 milliseconds.
-	for range ticker.C {
-		if requestsSent == count {
-			break
-		}
-			go func() {
-			requestsSent++
-			resultChannel <- WalkJourney(url)
-		}()
-	}
-
-	// You've done the speedy stuff. Now unpack it and return.
-	for i := 0; i < count; i++ {
-		result := <-resultChannel
-		results = append(results, result)
-	}
-
-	return results
 }
 
 type UserJourneyResult struct {
@@ -110,7 +40,6 @@ type UserJourneyResult struct {
 	JourneyResponseTimeMS int64
 	Finished              bool
 }
-
 
 func WalkJourney(urls []string) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
@@ -126,10 +55,9 @@ func WalkJourney(urls []string) UserJourneyResult {
 	// Loop through the URLs, add the responses
 	// and update the status code count.
 	for i, u := range urls {
-		r := MakeRequest(u)
+		r := MakeRequest(u, time.Now, time.Now)
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
-
 
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
@@ -166,7 +94,6 @@ func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
 		}()
 	}
 }
-
 
 func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
