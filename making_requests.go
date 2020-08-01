@@ -41,7 +41,7 @@ type UserJourneyResult struct {
 	Finished              bool
 }
 
-func WalkJourney(urls []string) UserJourneyResult {
+func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
 	// and reports back how it went.
 
@@ -59,16 +59,22 @@ func WalkJourney(urls []string) UserJourneyResult {
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
 
+		// Now read the website for 2 seconds.
+		reader.ReadWebsite(2)
+
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
 			break
 		}
 	}
 
-	// You've completed the walk, now record how long that took (start, finish, delta)
-	StartTime := Responses[0].RequestStart
-	EndTime := Responses[len(urls)-1].RequestFinished
-	MilliSecondDelta := calculateMSDelta(StartTime, EndTime)
+	// You've completed the walk. Now collect info related
+	// to when the user journey started, when it ended and the
+	// actual ResponseTime deltas associated with all the requests
+	// NOT counting the sleeping delays that are on each journey.
+	FirstURLStartTime := Responses[0].RequestStart
+	LastURLEndTime := Responses[len(urls)-1].RequestFinished
+	var JourneyTime = CalculateJourneyDuration(Responses)
 
 	// Did we walk the full journey?
 	if len(Responses) == len(urls) {
@@ -77,7 +83,7 @@ func WalkJourney(urls []string) UserJourneyResult {
 		Finished = false
 	}
 
-	return UserJourneyResult{Responses, Codes, StartTime, EndTime, MilliSecondDelta, Finished}
+	return UserJourneyResult{Responses, Codes, FirstURLStartTime, LastURLEndTime, JourneyTime, Finished}
 
 }
 
@@ -95,11 +101,39 @@ func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
 	}
 }
 
+func CalculateJourneyDuration(Responses map[int]Response) int64{
+	var JourneyTime int64 = 0
+	for _, v := range Responses{
+		// We have to loop through through each response
+		// and sum its response time. This is so we make sure that
+		// when we talk of the user journey time, we are confident we
+		// are talking about the server's performance and not letting the
+		// reading time sleeping function affect the results.
+		JourneyTime += v.ResponseTime
+	}
+	return JourneyTime
+}
+
 func calculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
 	// calculates the delta between them by subtracting the start
 	// from the end. It represents the final result in milliseconds.
 	return end.Sub(start).Milliseconds()
+}
+
+type UserJourneyReader interface{
+	ReadWebsite(int)
+}
+
+type EndUserReader struct{}
+
+func (EndUserReader) ReadWebsite(t int){
+	time.Sleep((time.Duration(t)) * time.Second)
+}
+
+func doReading(duration int) {
+	// doReading takes in a duration for reading and sleeps for that length of time in seconds.
+	// It is instead of time.Sleep in the function as we can mock with it.
 }
 
 func StatusOkay(status int) bool {
