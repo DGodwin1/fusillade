@@ -68,82 +68,7 @@ func TestGetter(t *testing.T) {
 
 		AssertResponseCode(t, got.StatusCode, want)
 	})
-
-
 }
-
-func TestLatency(t *testing.T) {
-	t.Run("Test latency checker is 10", func(t *testing.T) {
-		start := time.Date(2019, 1, 1, 1, 1, 1, 0, time.UTC)
-		finish := time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
-		got := CalculateMSDelta(start, finish)
-		var want int64 = 10
-		if got != want {
-			t.Errorf("got %d, wanted %d", got, want)
-		}
-	})
-}
-
-func TestConcurrency(t *testing.T) {
-	t.Run("Test that 20 requests leads to a collection of 20 Responses", func(t *testing.T) {
-		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-		}))
-
-		ticker := time.NewTicker(1 * time.Millisecond)
-		resultChannel := make(chan Response)
-		count := 20
-
-		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(FakeServer.URL, time.Now, time.Now)
-		}, count, *ticker)
-
-		var responses []Response
-		for i := 0; i < count; i++ {
-			result := <-resultChannel
-			responses = append(responses, result)
-		}
-
-		// There should be 20 responses from the channel
-		got := len(responses)
-		want := 20
-
-		if got != want {
-			t.Errorf("got %d, want %d", got, want)
-		}
-
-	})
-
-	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T) {
-		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// The point of this is that we should expect to see a channel with 10 responses in it, even
-			// though the requests have been sent to the server faster than the server is able to respond to all of them.
-			time.Sleep(1 * time.Second)
-			w.WriteHeader(http.StatusOK)
-		}))
-
-		ticker := time.NewTicker(1 * time.Millisecond)
-		resultChannel := make(chan Response)
-		count := 10
-
-		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(SlowServer.URL, time.Now, time.Now)
-		}, count, *ticker)
-
-		var got []Response
-		for i := 0; i < count; i++ {
-			result := <-resultChannel
-			got = append(got, result)
-		}
-
-		want := 10
-
-		if len(got) != want {
-			t.Errorf("got %d, want %d", len(got), want)
-		}
-	})
-}
-
 func TestWalker(t *testing.T) {
 	t.Run("Test that Walker struct has 2 200 response codes when given two good urls", func(t *testing.T) {
 		// Setup the servers
@@ -254,6 +179,66 @@ func TestWalker(t *testing.T) {
 			}
 		}
 
+	})
+}
+
+func TestConcurrency(t *testing.T) {
+	t.Run("Test that 20 requests leads to a collection of 20 Responses", func(t *testing.T) {
+		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		ticker := time.NewTicker(1 * time.Millisecond)
+		resultChannel := make(chan Response)
+		count := 20
+
+		DoConcurrentTask(func() {
+			resultChannel <- MakeRequest(FakeServer.URL, time.Now, time.Now)
+		}, count, *ticker)
+
+		var responses []Response
+		for i := 0; i < count; i++ {
+			result := <-resultChannel
+			responses = append(responses, result)
+		}
+
+		// There should be 20 responses from the channel
+		got := len(responses)
+		want := 20
+
+		if got != want {
+			t.Errorf("got %d, want %d", got, want)
+		}
+
+	})
+
+	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T) {
+		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// The point of this is that we should expect to see a channel with 10 responses in it, even
+			// though the requests have been sent to the server faster than the server is able to respond to all of them.
+			time.Sleep(1 * time.Second)
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		ticker := time.NewTicker(1 * time.Millisecond)
+		resultChannel := make(chan Response)
+		count := 10
+
+		DoConcurrentTask(func() {
+			resultChannel <- MakeRequest(SlowServer.URL, time.Now, time.Now)
+		}, count, *ticker)
+
+		var got []Response
+		for i := 0; i < count; i++ {
+			result := <-resultChannel
+			got = append(got, result)
+		}
+
+		want := 10
+
+		if len(got) != want {
+			t.Errorf("got %d, want %d", len(got), want)
+		}
 	})
 }
 

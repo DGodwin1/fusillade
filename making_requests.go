@@ -23,7 +23,7 @@ func MakeRequest(url string, start func() time.Time, end func() time.Time) Respo
 		return Response{} //for now, just return an empty response.
 	}
 
-	rt := CalculateMSDelta(s, e)
+	rt := calculateMSDelta(s, e)
 
 	return Response{StatusCode: request.StatusCode,
 		RequestStart:    s,
@@ -68,7 +68,7 @@ func WalkJourney(urls []string) UserJourneyResult {
 	// You've completed the walk, now record how long that took (start, finish, delta)
 	StartTime := Responses[0].RequestStart
 	EndTime := Responses[len(urls)-1].RequestFinished
-	MilliSecondDelta := CalculateMSDelta(StartTime, EndTime)
+	MilliSecondDelta := calculateMSDelta(StartTime, EndTime)
 
 	// Did we walk the full journey?
 	if len(Responses) == len(urls) {
@@ -95,7 +95,7 @@ func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
 	}
 }
 
-func CalculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
+func calculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
 	// calculates the delta between them by subtracting the start
 	// from the end. It represents the final result in milliseconds.
