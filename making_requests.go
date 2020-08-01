@@ -131,11 +131,6 @@ func (EndUserReader) ReadWebsite(t int){
 	time.Sleep((time.Duration(t)) * time.Second)
 }
 
-func doReading(duration int) {
-	// doReading takes in a duration for reading and sleeps for that length of time in seconds.
-	// It is instead of time.Sleep in the function as we can mock with it.
-}
-
 func StatusOkay(status int) bool {
 	// StatusOkay takes a status code and says whether
 	// or not this is ok with respect to a user journey.
