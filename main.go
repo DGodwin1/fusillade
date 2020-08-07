@@ -1,23 +1,31 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
 func main() {
 	//Parse the file.
+	config, _ := ParseConfigFile("test_config.json")
 
 	//Validate that everything in the file is okay.
 
-	//Now get prepare the test.
+	//Prepare the test.
+	urls := config.Urls
+	count := config.Count
 	ticker := time.NewTicker(100 * time.Millisecond) //TODO: take from config.
-	count := 100                                     //TODO: take from the config.
-	resultChannel := make(chan UserJourneyResult)
-	//var urls []string //TODO: take from config.
 
+	resultChannel := make(chan UserJourneyResult)
+
+	reader := EndUserReader{}
+
+
+	// Hit the URLS
 	DoConcurrentTask(func() {
-		resultChannel <- WalkJourney([]string{"there should be some urls here"})
+		resultChannel <- WalkJourney(urls, reader)
 	}, count, *ticker)
+
 
 	// You've done the speedy stuff, now unload from the channel.
 	var responses []UserJourneyResult
@@ -26,6 +34,13 @@ func main() {
 		responses = append(responses, result)
 	}
 
-	//Now prepare the data.
+	for _, v := range responses{
+		fmt.Println(v.JourneyResponseTimeMS)
+	}
+
+
+	// Now prepare a report
+
+
 
 }
