@@ -14,7 +14,7 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
-func GetUserReader()EndUserReader{
+func GetUserReader() EndUserReader {
 	return EndUserReader{}
 }
 
@@ -187,7 +187,7 @@ func TestWalker(t *testing.T) {
 }
 
 func TestConcurrency(t *testing.T) {
-	t.Run("Test that 20 requests leads to a collection of 20 Responses", func(t *testing.T) {
+	t.Run("20 requests leads to 20 Responses", func(t *testing.T) {
 		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))

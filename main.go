@@ -20,12 +20,10 @@ func main() {
 
 	reader := EndUserReader{}
 
-
 	// Hit the URLS
 	DoConcurrentTask(func() {
 		resultChannel <- WalkJourney(urls, reader)
 	}, count, *ticker)
-
 
 	// You've done the speedy stuff, now unload from the channel.
 	var responses []UserJourneyResult
@@ -34,13 +32,10 @@ func main() {
 		responses = append(responses, result)
 	}
 
-	for _, v := range responses{
+	for _, v := range responses {
 		fmt.Println(v.JourneyResponseTimeMS)
 	}
 
-
 	// Now prepare a report
-
-
 
 }

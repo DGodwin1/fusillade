@@ -27,11 +27,11 @@ func TestTranslate(t *testing.T) {
 		got, _ := ParseConfigFile("test_config.json")
 
 		want := &Config{
-			Urls: []string{"https://www.google.com", "https://www.voguebusiness.com"},
+			Urls:  []string{"https://www.google.com", "https://www.voguebusiness.com"},
 			Count: 100,
 		}
 
-		if !reflect.DeepEqual(got, want){
+		if !reflect.DeepEqual(got, want) {
 			t.Errorf("Got %v, want %v", got, want)
 		}
 

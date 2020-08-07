@@ -127,7 +127,7 @@ type UserJourneyReader interface {
 	ReadWebsite(int)
 }
 
-type EndUserReader struct{
+type EndUserReader struct {
 	time int
 }
 
