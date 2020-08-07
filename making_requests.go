@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -15,6 +16,7 @@ type Response struct {
 
 func MakeRequest(url string, start func() time.Time, end func() time.Time) Response {
 	// MakeRequest takes a URL and returns a Response.
+	fmt.Printf("Request sent to: %q\n", url)
 	s := start()
 	request, err := http.Get(url)
 	e := end()
@@ -58,9 +60,9 @@ func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 		r := MakeRequest(u, time.Now, time.Now)
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
-
-		// Now read the website for 2 seconds.
-		reader.ReadWebsite(2)
+		fmt.Printf("Reading %q\n", u)
+		// Read for X milliseconds.
+		reader.ReadWebsite(2000)
 
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
@@ -74,7 +76,7 @@ func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 	// NOT counting the sleeping delays that are on each journey.
 	FirstURLStartTime := Responses[0].RequestStart
 	LastURLEndTime := Responses[len(urls)-1].RequestFinished
-	var JourneyTime = CalculateJourneyDuration(Responses)
+	JourneyTime := CalculateJourneyDuration(Responses)
 
 	// Did we walk the full journey?
 	if len(Responses) == len(urls) {
@@ -95,20 +97,20 @@ func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
 			break
 		}
 		go func() {
+			fmt.Printf("Task %d starting\n", TasksComplete)
 			TasksComplete++
 			task()
 		}()
 	}
 }
 
-func CalculateJourneyDuration(Responses map[int]Response) int64{
+func CalculateJourneyDuration(Responses map[int]Response) int64 {
 	var JourneyTime int64 = 0
-	for _, v := range Responses{
+	for _, v := range Responses {
 		// We have to loop through through each response
-		// and sum its response time. This is so we make sure that
-		// when we talk of the user journey time, we are confident we
-		// are talking about the server's performance and not letting the
-		// reading time sleeping function affect the results.
+		// and sum the response times. This is so we make sure that
+		// when we talk of the user journey time, we make sure not to
+		// let any reading time figures affect the data.
 		JourneyTime += v.ResponseTime
 	}
 	return JourneyTime
@@ -121,14 +123,16 @@ func calculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
 	return end.Sub(start).Milliseconds()
 }
 
-type UserJourneyReader interface{
+type UserJourneyReader interface {
 	ReadWebsite(int)
 }
 
-type EndUserReader struct{}
+type EndUserReader struct{
+	time int
+}
 
-func (EndUserReader) ReadWebsite(t int){
-	time.Sleep((time.Duration(t)) * time.Second)
+func (EndUserReader) ReadWebsite(t int) {
+	time.Sleep((time.Duration(t)) * time.Millisecond)
 }
 
 func StatusOkay(status int) bool {
