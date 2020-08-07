@@ -14,6 +14,10 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
+func GetUserReader()EndUserReader{
+	return EndUserReader{}
+}
+
 type Faker interface {
 	Start() time.Time
 	End() time.Time
@@ -84,7 +88,7 @@ func TestWalker(t *testing.T) {
 		URLS := []string{Server1.URL, Server2.URL}
 
 		// 'work' will be a UserJourney struct that we can pull data out of.
-		work := WalkJourney(URLS)
+		work := WalkJourney(URLS, GetUserReader())
 
 		// Reach into the ResponseCodes map that is stored in 'work' and see what's held there for 200 codes.
 		got := work.Codes[200]
@@ -105,7 +109,7 @@ func TestWalker(t *testing.T) {
 
 		URLS := []string{GoodServer.URL, BadServer.URL}
 
-		work := WalkJourney(URLS)
+		work := WalkJourney(URLS, GetUserReader())
 		got200 := work.Codes[200]
 		got404 := work.Codes[404]
 		want := 1
@@ -132,7 +136,7 @@ func TestWalker(t *testing.T) {
 		// We should include the BadServer.URL response it was _part_ of the user's
 		// journey. They would have experienced that page/that blocker so it should show
 		// in the overall metrics. The final GoodServer.URL, on the other hand, should not.
-		work := WalkJourney(URLS)
+		work := WalkJourney(URLS, GetUserReader())
 		got := len(work.Responses)
 		want := 2
 
@@ -173,7 +177,7 @@ func TestWalker(t *testing.T) {
 		}
 
 		for _, tt := range FinishedTests {
-			got := WalkJourney(tt.journey)
+			got := WalkJourney(tt.journey, GetUserReader())
 			if got.Finished != tt.want {
 				t.Errorf("Got %v, wanted %v", got.Finished, tt.want)
 			}
@@ -241,11 +245,6 @@ func TestConcurrency(t *testing.T) {
 		}
 	})
 }
-
-//func TestThatReadingTime(t *testing.T){
-//	t.Run("10 second reading time isn't added to the overall response time")
-//	TODO: update the functions so that they take in time objects.
-//}
 
 func TestStatusOkay(t *testing.T) {
 	var StatusTests = []struct {
