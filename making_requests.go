@@ -61,6 +61,7 @@ func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
 		fmt.Printf("Reading %q\n", u)
+
 		// Read for X milliseconds.
 		reader.ReadWebsite(2000)
 
@@ -79,11 +80,7 @@ func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 	JourneyTime := CalculateJourneyDuration(Responses)
 
 	// Did we walk the full journey?
-	if len(Responses) == len(urls) {
-		Finished = true
-	} else {
-		Finished = false
-	}
+	Finished = len(Responses) == len(urls)
 
 	return UserJourneyResult{Responses, Codes, FirstURLStartTime, LastURLEndTime, JourneyTime, Finished}
 
