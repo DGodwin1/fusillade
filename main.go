@@ -6,10 +6,28 @@ import (
 )
 
 func main() {
-	//Parse the file.
-	config, _ := ParseConfigFile("test_config.json")
+	//TODO: get the config from _somewhere
+	// Get the config.
+
+
+	// Parse the file.
+	config, err := ParseConfigFile("test_config.json")
+
+	if err != nil{
+		fmt.Println("There's been an issue parsing the config file.")
+		fmt.Printf("Here's the error %q", err)
+		return
+	}
 
 	//Validate that everything in the file is okay.
+	v := ConfigValidator{}
+	_, err = v.Validate(config)
+
+	if err != nil{
+		fmt.Println("There's been an issue validating the configuration.")
+		fmt.Printf("Here's the error %q", err)
+		return
+	}
 
 	//Prepare the test.
 	urls := config.Urls
@@ -19,11 +37,13 @@ func main() {
 	resultChannel := make(chan UserJourneyResult)
 
 	reader := EndUserReader{}
+	MillisecondReadingTime := 10000
 
 	// Hit the URLS
 	DoConcurrentTask(func() {
-		resultChannel <- WalkJourney(urls, reader)
+		resultChannel <- WalkJourney(urls, reader, MillisecondReadingTime)
 	}, count, *ticker)
+
 
 	// You've done the speedy stuff, now unload from the channel.
 	var responses []UserJourneyResult
@@ -35,7 +55,7 @@ func main() {
 	for _, v := range responses {
 		fmt.Println(v.JourneyResponseTimeMS)
 	}
-
-	// Now prepare a report
+	//Now prepare a report
+	MakeBarGraph(responses)
 
 }
