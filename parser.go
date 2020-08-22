@@ -13,6 +13,7 @@ import (
 type Config struct {
 	// Represents a parsed configuration file.
 	// Regardless of how a parser is implemented
+	// they should organise data into this format.
 	Urls  []string `json:"urls"`
 	Count int      `json:"hits"`
 }
@@ -40,6 +41,7 @@ func (JSONParser) Translate(bytesData []byte) *Config {
 	return parsed
 }
 
+
 func GetParser(path string) (Parser, error) {
 	Parser := map[string]Parser{
 		".json": JSONParser{},
@@ -59,14 +61,21 @@ func ParseConfigFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 
 	if err != nil {
-		fmt.Println(err)
-
+		return &Config{}, err
 	}
 	defer file.Close()
 
-	parser, _ := GetParser(path)
+	parser, err := GetParser(path)
 
-	FileInBytes, _ := ioutil.ReadAll(file)
+	if err != nil{
+		return &Config{}, err
+	}
+
+	FileInBytes, err := ioutil.ReadAll(file)
+
+	if err != nil{
+		return &Config{}, err
+	}
 
 	parsed := &Config{}
 	// Do the parsing now
