@@ -88,7 +88,7 @@ func TestWalker(t *testing.T) {
 		URLS := []string{Server1.URL, Server2.URL}
 
 		// 'work' will be a UserJourney struct that we can pull data out of.
-		work := WalkJourney(URLS, GetUserReader())
+		work := WalkJourney(URLS, GetUserReader(), 1)
 
 		// Reach into the ResponseCodes map that is stored in 'work' and see what's held there for 200 codes.
 		got := work.Codes[200]
@@ -109,7 +109,7 @@ func TestWalker(t *testing.T) {
 
 		URLS := []string{GoodServer.URL, BadServer.URL}
 
-		work := WalkJourney(URLS, GetUserReader())
+		work := WalkJourney(URLS, GetUserReader(), 1)
 		got200 := work.Codes[200]
 		got404 := work.Codes[404]
 		want := 1
@@ -132,11 +132,9 @@ func TestWalker(t *testing.T) {
 		URLS := []string{GoodServer.URL, BadServer.URL, GoodServer.URL}
 
 		// We should only get two responses in the struct:
-		// one for the first GoodServer.URL and another for the BadServer.URL.
-		// We should include the BadServer.URL response it was _part_ of the user's
-		// journey. They would have experienced that page/that blocker so it should show
-		// in the overall metrics. The final GoodServer.URL, on the other hand, should not.
-		work := WalkJourney(URLS, GetUserReader())
+		// one for the first GoodServer and another for the BadServer.URL.
+		// We should include the BadServer.URL because the user would have seen it.
+		work := WalkJourney(URLS, GetUserReader(), 1)
 		got := len(work.Responses)
 		want := 2
 
@@ -177,7 +175,7 @@ func TestWalker(t *testing.T) {
 		}
 
 		for _, tt := range FinishedTests {
-			got := WalkJourney(tt.journey, GetUserReader())
+			got := WalkJourney(tt.journey, GetUserReader(), 1)
 			if got.Finished != tt.want {
 				t.Errorf("Got %v, wanted %v", got.Finished, tt.want)
 			}
@@ -216,11 +214,44 @@ func TestConcurrency(t *testing.T) {
 
 	})
 
+	t.Run("20 journeys leads to 20 results", func(t *testing.T) {
+		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		FakeServer2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+
+		ticker := time.NewTicker(100 * time.Millisecond)
+		resultChannel := make(chan UserJourneyResult)
+		count := 20
+		urls := []string{FakeServer.URL, FakeServer2.URL}
+
+		DoConcurrentTask(func() {
+			resultChannel <- WalkJourney(urls, GetUserReader(), 10)
+		}, count, *ticker)
+
+		var responses []UserJourneyResult
+		for i := 0; i < count; i++ {
+			result := <-resultChannel
+			responses = append(responses, result)
+		}
+
+		// There should be 20 responses from the channel
+		got := len(responses)
+		want := 200
+
+		if got != want {
+			t.Errorf("got %d, want %d", got, want)
+		}
+	})
+
 	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T) {
 		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// The point of this is that we should expect to see a channel with 10 responses in it, even
 			// though the requests have been sent to the server faster than the server is able to respond to all of them.
-			time.Sleep(1 * time.Second)
+			time.Sleep(2 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 

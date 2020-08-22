@@ -8,7 +8,6 @@ import (
 
 type Response struct {
 	StatusCode int
-	//Store timings for a particular request.
 	RequestStart    time.Time
 	RequestFinished time.Time
 	ResponseTime    int64
@@ -16,13 +15,13 @@ type Response struct {
 
 func MakeRequest(url string, start func() time.Time, end func() time.Time) Response {
 	// MakeRequest takes a URL and returns a Response.
-	fmt.Printf("Request sent to: %q\n", url)
+	fmt.Printf("Making request to %q\n", url)
 	s := start()
 	request, err := http.Get(url)
 	e := end()
 
 	if err != nil {
-		return Response{} //for now, just return an empty response.
+		return Response{} //TODO: also return an error and deal with that when making requests.
 	}
 
 	rt := calculateMSDelta(s, e)
@@ -35,6 +34,8 @@ func MakeRequest(url string, start func() time.Time, end func() time.Time) Respo
 }
 
 type UserJourneyResult struct {
+	// Collect response data data and wrap them
+	// with information on how a user journey went
 	Responses             map[int]Response
 	Codes                 map[int]int
 	JourneyStart          time.Time
@@ -43,7 +44,8 @@ type UserJourneyResult struct {
 	Finished              bool
 }
 
-func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
+
+func WalkJourney(urls []string, reader UserJourneyReader, ReadingTime int) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
 	// and reports back how it went.
 
@@ -60,10 +62,9 @@ func WalkJourney(urls []string, reader UserJourneyReader) UserJourneyResult {
 		r := MakeRequest(u, time.Now, time.Now)
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
-		fmt.Printf("Reading %q\n", u)
 
 		// Read for X milliseconds.
-		reader.ReadWebsite(2000)
+		reader.ReadWebsite(ReadingTime)
 
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
@@ -94,7 +95,6 @@ func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
 			break
 		}
 		go func() {
-			fmt.Printf("Task %d starting\n", TasksComplete)
 			TasksComplete++
 			task()
 		}()
@@ -113,7 +113,7 @@ func CalculateJourneyDuration(Responses map[int]Response) int64 {
 	return JourneyTime
 }
 
-func calculateMSDelta(start time.Time, end time.Time) (ResponseTime int64) {
+func calculateMSDelta(start time.Time, end time.Time) int64 {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
 	// calculates the delta between them by subtracting the start
 	// from the end. It represents the final result in milliseconds.
@@ -125,7 +125,6 @@ type UserJourneyReader interface {
 }
 
 type EndUserReader struct {
-	time int
 }
 
 func (EndUserReader) ReadWebsite(t int) {
