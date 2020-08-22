@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"net/url"
 )
 
 type Validator interface {
@@ -15,20 +16,28 @@ func (ConfigValidator) Validate(c *Config) (bool, error){
 	// and checks that the values held on the different
 	// struct tags are appropriate for a given load test.
 
-	//No URLs
+	// No URLs?
 	if len(c.Urls)<1{
-		return false, errors.New("you need to request at least 1 URL")
+		return false, errors.New("you need to make request at least 1 URL")
 	}
 
-	// Any empty strings anywhere?
+	// Empty URLs?
 	for _, v := range c.Urls{
 		if v == ""{
-			return false, errors.New("you can't have an empty url")
+			return false, errors.New("you can't test a url that doesn't exist")
 		}
 	}
 
 	if c.Count < 1{
-		return false, errors.New("count can't be lower than 1")
+		return false, errors.New("you need to test at least one user journey")
+	}
+
+	// Properly formatted according to Go?
+	for _, v := range c.Urls{
+		_, err := url.ParseRequestURI(v)
+		if err != nil{
+			return false, err
+		}
 	}
 
 	return true, nil

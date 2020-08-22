@@ -8,44 +8,51 @@ func GetValidator() Validator {
 	return ConfigValidator{}
 }
 
-func AssertError(t *testing.T, err error, file *Config){
+func AssertError(t *testing.T, err error, c *Config){
 	t.Helper()
 	if err == nil{
-		t.Errorf("wanted error but didn't get one with %v", file)
+		t.Errorf("wanted error but didn't get one with %v", c)
 	}
 }
 
 func TestValidator(t *testing.T){
 	t.Run("No URLs in JSON throws error", func(t *testing.T) {
-		file, _ := ParseConfigFile("empty_array_fail.json")
+		c := &Config{Count: 100}
 		v := GetValidator()
 
-		_, err := v.Validate(file)
+		_, err := v.Validate(c)
 
-		AssertError(t, err, file)
+		AssertError(t, err, c)
 
 	})
 
 	t.Run("An empty string in the URL array throws error", func(t *testing.T) {
-		file, _ := ParseConfigFile("empty_string_url_0_hits.json")
+		c := &Config{Urls: []string{" "}}
 		v := GetValidator()
 
-		_, err := v.Validate(file)
+		_, err := v.Validate(c)
 
-		AssertError(t, err, file)
+		AssertError(t, err, c)
 	})
 
 	t.Run("Count must be greater than 0", func(t *testing.T) {
-		file, _ := ParseConfigFile("count0.json")
+		c := &Config{Count: 0}
+
 		v := GetValidator()
 
-		_, err := v.Validate(file)
+		_, err := v.Validate(c)
 
-		AssertError(t, err, file)
+		AssertError(t, err, c)
 	})
 
-	t.Run("URLs must be full", func(t *testing.T) {
-		
+	t.Run("URLs must be 'proper'", func(t *testing.T) {
+		// TODO: beef up URLs to test.
+		c := &Config{Urls: []string{"google.com"}}
 
+		v := GetValidator()
+
+		_, err := v.Validate(c)
+
+		AssertError(t, err, c)
 	})
 }
