@@ -45,7 +45,7 @@ type UserJourneyResult struct {
 }
 
 
-func WalkJourney(urls []string, reader UserJourneyReader, ReadingTime int) UserJourneyResult {
+func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
 	// and reports back how it went.
 
@@ -63,8 +63,10 @@ func WalkJourney(urls []string, reader UserJourneyReader, ReadingTime int) UserJ
 		Responses[i] = r
 		Codes[r.StatusCode] += 1
 
-		// Read for X milliseconds.
-		reader.ReadWebsite(ReadingTime)
+		// Pause the session and pretend
+		// to read the content for the amount
+		// of time specified on the SessionPauser.
+		s.PauseSession()
 
 		// Should we request the next URL?
 		if !StatusOkay(r.StatusCode) {
@@ -120,15 +122,16 @@ func calculateMSDelta(start time.Time, end time.Time) int64 {
 	return end.Sub(start).Milliseconds()
 }
 
-type UserJourneyReader interface {
-	ReadWebsite(int)
+type SessionPauser interface{
+	PauseSession()
 }
 
-type EndUserReader struct {
+type FakeUser struct{
+	DelayTime int
 }
 
-func (EndUserReader) ReadWebsite(t int) {
-	time.Sleep((time.Duration(t)) * time.Millisecond)
+func(f FakeUser) PauseSession(){
+	time.Sleep(time.Duration(f.DelayTime) * time.Millisecond)
 }
 
 func StatusOkay(status int) bool {

@@ -14,22 +14,15 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
-func GetUserReader() EndUserReader {
-	return EndUserReader{}
+func GetUserReader() FakeUser {
+	return FakeUser{DelayTime: 1}
 }
 
-type Faker interface {
-	Start() time.Time
-	End() time.Time
-}
-
-type FakeTime struct{}
-
-func (FakeTime) Start() time.Time {
+func Start() time.Time {
 	return time.Date(2019, 1, 1, 1, 1, 1, 0, time.UTC)
 }
 
-func (FakeTime) End() time.Time {
+func End() time.Time {
 	return time.Date(2019, 1, 1, 1, 1, 1, 10000000, time.UTC)
 }
 
@@ -39,9 +32,7 @@ func TestGetter(t *testing.T) {
 			writer.WriteHeader(http.StatusOK)
 		}))
 
-		faker := FakeTime{}
-
-		got := MakeRequest(FakeServer.URL, faker.Start, faker.End)
+		got := MakeRequest(FakeServer.URL, Start, End)
 		var want int64 = 10
 
 		if got.ResponseTime != want {
@@ -50,7 +41,7 @@ func TestGetter(t *testing.T) {
 
 	})
 
-	t.Run("MakeRequest returns 200 on 'ok' URL", func(t *testing.T) {
+	t.Run("MakeRequest stores 200 on 'ok' URL", func(t *testing.T) {
 		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
@@ -62,7 +53,7 @@ func TestGetter(t *testing.T) {
 
 	})
 
-	t.Run("MakeRequest returns 500 on bad URL", func(t *testing.T) {
+	t.Run("MakeRequest stores 500 on bad URL", func(t *testing.T) {
 		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
@@ -88,7 +79,7 @@ func TestWalker(t *testing.T) {
 		URLS := []string{Server1.URL, Server2.URL}
 
 		// 'work' will be a UserJourney struct that we can pull data out of.
-		work := WalkJourney(URLS, GetUserReader(), 1)
+		work := WalkJourney(URLS, GetUserReader())
 
 		// Reach into the ResponseCodes map that is stored in 'work' and see what's held there for 200 codes.
 		got := work.Codes[200]
@@ -109,7 +100,7 @@ func TestWalker(t *testing.T) {
 
 		URLS := []string{GoodServer.URL, BadServer.URL}
 
-		work := WalkJourney(URLS, GetUserReader(), 1)
+		work := WalkJourney(URLS, GetUserReader())
 		got200 := work.Codes[200]
 		got404 := work.Codes[404]
 		want := 1
@@ -134,7 +125,7 @@ func TestWalker(t *testing.T) {
 		// We should only get two responses in the struct:
 		// one for the first GoodServer and another for the BadServer.URL.
 		// We should include the BadServer.URL because the user would have seen it.
-		work := WalkJourney(URLS, GetUserReader(), 1)
+		work := WalkJourney(URLS, GetUserReader())
 		got := len(work.Responses)
 		want := 2
 
@@ -175,7 +166,7 @@ func TestWalker(t *testing.T) {
 		}
 
 		for _, tt := range FinishedTests {
-			got := WalkJourney(tt.journey, GetUserReader(), 1)
+			got := WalkJourney(tt.journey, GetUserReader())
 			if got.Finished != tt.want {
 				t.Errorf("Got %v, wanted %v", got.Finished, tt.want)
 			}
@@ -223,13 +214,13 @@ func TestConcurrency(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		ticker := time.NewTicker(100 * time.Millisecond)
+		ticker := time.NewTicker(1 * time.Millisecond)
 		resultChannel := make(chan UserJourneyResult)
 		count := 20
 		urls := []string{FakeServer.URL, FakeServer2.URL}
 
 		DoConcurrentTask(func() {
-			resultChannel <- WalkJourney(urls, GetUserReader(), 10)
+			resultChannel <- WalkJourney(urls, GetUserReader())
 		}, count, *ticker)
 
 		var responses []UserJourneyResult
@@ -240,7 +231,7 @@ func TestConcurrency(t *testing.T) {
 
 		// There should be 20 responses from the channel
 		got := len(responses)
-		want := 200
+		want := 20
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -251,7 +242,7 @@ func TestConcurrency(t *testing.T) {
 		SlowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// The point of this is that we should expect to see a channel with 10 responses in it, even
 			// though the requests have been sent to the server faster than the server is able to respond to all of them.
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 
