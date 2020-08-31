@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -46,8 +47,7 @@ func TestValidator(t *testing.T){
 	})
 
 	t.Run("URLs must be 'proper'", func(t *testing.T) {
-		// TODO: beef up URLs to test.
-		c := &Config{Urls: []string{"google.com"}}
+		c := &Config{Urls: []string{"/google.com"}}
 
 		v := GetValidator()
 
@@ -55,4 +55,37 @@ func TestValidator(t *testing.T){
 
 		AssertError(t, err, c)
 	})
+
+	t.Run("URLs must start with http'", func(t *testing.T) {
+		c := &Config{Urls: []string{"h"}}
+
+		v := GetValidator()
+
+		_, err := v.Validate(c)
+
+		AssertError(t, err, c)
+	})
+}
+
+func TestStartsWithHTTP(t *testing.T) {
+	m := errors.New("doesn't start with http")
+	var ProtocolTests = []struct{
+		s string
+		b bool
+		e error
+	}{
+		{"https://", true, nil},
+		{"http", true, nil},
+		{"h", false, m},
+		{"ftp", false, m},
+		{"telnet", false, m},
+		{"192.168.0", false, m},
+	}
+	for _, tt := range ProtocolTests{
+		got, _ := StartsWithHTTP(tt.s)
+		want := tt.b
+		if got != want{
+			t.Errorf("Got %t, wanted %t with %q", got, want, tt.s)
+		}
+	}
 }

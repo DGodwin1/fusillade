@@ -40,6 +40,22 @@ func (ConfigValidator) Validate(c *Config) (bool, error){
 		}
 	}
 
+	// Starts properly.
+	for _, v := range c.Urls{
+		_, err := StartsWithHTTP(v)
+		if err != nil{
+			return false, err
+		}
+	}
+
 	return true, nil
+}
+
+func StartsWithHTTP(s string) (bool, error){
+	if len(s) < 4{
+		//Not enough letters to be http to begin with
+		return false, errors.New("doesn't start with http")
+	}
+	return s[0:4] == "http", nil
 }
 
