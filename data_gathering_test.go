@@ -1,9 +1,12 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
-func TestMaxLatencyValue(t *testing.T){
-	t.Run("Test max with a single 'max' number", func(t *testing.T){
+func TestMaxLatencyValue(t *testing.T) {
+	t.Run("Test max with a single 'max' number", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 50})
@@ -13,12 +16,12 @@ func TestMaxLatencyValue(t *testing.T){
 		got := MaxUserJourneyResponseLatency(ujs)
 		var want int64 = 70
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Test max with several 'max' numbers", func(t *testing.T){
+	t.Run("Test max with several 'max' numbers", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 70})
@@ -28,12 +31,12 @@ func TestMaxLatencyValue(t *testing.T){
 		got := MaxUserJourneyResponseLatency(ujs)
 		var want int64 = 70
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Test max with minus values", func(t *testing.T){
+	t.Run("Test max with minus values", func(t *testing.T) {
 		// This is unlikely to play out in production (you can't have minus time)
 		// but it's good to know the system won't fall over if it gets a
 		// non-natural number.
@@ -46,12 +49,12 @@ func TestMaxLatencyValue(t *testing.T){
 		got := MaxUserJourneyResponseLatency(ujs)
 		var want int64 = -20
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Test max with numbers across the divide", func(t *testing.T){
+	t.Run("Test max with numbers across the divide", func(t *testing.T) {
 
 		var ujs []UserJourneyResult
 
@@ -62,15 +65,15 @@ func TestMaxLatencyValue(t *testing.T){
 		got := MaxUserJourneyResponseLatency(ujs)
 		var want int64 = 1
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
 }
 
-func TestFindMinJourneyResponseTime(t *testing.T){
-	t.Run("Find min with natural numbers", func(t *testing.T){
+func TestFindMinJourneyResponseTime(t *testing.T) {
+	t.Run("Find min with natural numbers", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 55})
@@ -80,12 +83,12 @@ func TestFindMinJourneyResponseTime(t *testing.T){
 		got := MinUserJourneyResponseLatency(ujs)
 		var want int64 = 20
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Find min with two min numbers", func(t *testing.T){
+	t.Run("Find min with two min numbers", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 0})
@@ -95,12 +98,12 @@ func TestFindMinJourneyResponseTime(t *testing.T){
 		got := MinUserJourneyResponseLatency(ujs)
 		var want int64 = 0
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Find min with negative numbers", func(t *testing.T){
+	t.Run("Find min with negative numbers", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: -1})
@@ -110,12 +113,12 @@ func TestFindMinJourneyResponseTime(t *testing.T){
 		got := MinUserJourneyResponseLatency(ujs)
 		var want int64 = -3
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
 
-	t.Run("Find min with numbers across the divide", func(t *testing.T){
+	t.Run("Find min with numbers across the divide", func(t *testing.T) {
 		var ujs []UserJourneyResult
 
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 1})
@@ -125,8 +128,71 @@ func TestFindMinJourneyResponseTime(t *testing.T){
 		got := MinUserJourneyResponseLatency(ujs)
 		var want int64 = -1
 
-		if got != want{
+		if got != want {
 			t.Errorf("got %d, want %d", got, want)
+		}
+	})
+}
+
+//func TestFindPercentile(t *testing.T) {
+//	t.Run("Find 5th", func(t *testing.T) {
+//		latencies := []int{15, 20, 35, 40, 50}
+//		got := FindPercentile(latencies, 5)
+//		want := 15
+//		if got != want {
+//			t.Errorf("got %d want %d", got, want)
+//		}
+//	})
+//
+//	t.Run("30th percentile", func(t *testing.T) {
+//		latencies := []int{15, 20, 35, 40, 50}
+//		got := FindPercentile(latencies, 30)
+//		want := 20
+//		if got != want {
+//			t.Errorf("got %d want %d", got, want)
+//		}
+//	})
+//}
+
+func TestCountResponseCodes(t *testing.T) {
+	t.Run("Test correct counting", func(t *testing.T) {
+		var ujs []UserJourneyResult
+		codes := map[int]int{200: 2, 404: 1, 500: 5}
+		ujs = append(ujs, UserJourneyResult{Codes: codes})
+		ujs = append(ujs, UserJourneyResult{Codes: codes})
+		ujs = append(ujs, UserJourneyResult{Codes: codes})
+
+		got := CountResponseCodes(ujs)
+		want := map[int]int{200: 6, 404: 3, 500: 15}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+
+	t.Run("test only 200 responses", func(t *testing.T) {
+		var twoHundreds []UserJourneyResult
+		twos := map[int]int{200: 2}
+
+		twoHundreds = append(twoHundreds, UserJourneyResult{Codes: twos})
+		twoHundreds = append(twoHundreds, UserJourneyResult{Codes: twos})
+
+		got := CountResponseCodes(twoHundreds)
+		want := map[int]int{200: 4}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+
+	t.Run("test no responses", func(t *testing.T) {
+		var twoHundreds []UserJourneyResult
+
+		got := CountResponseCodes(twoHundreds)
+		want := map[int]int{}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
 		}
 	})
 }
