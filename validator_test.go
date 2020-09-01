@@ -9,14 +9,14 @@ func GetValidator() Validator {
 	return ConfigValidator{}
 }
 
-func AssertError(t *testing.T, err error, c *Config){
+func AssertError(t *testing.T, err error, c *Config) {
 	t.Helper()
-	if err == nil{
+	if err == nil {
 		t.Errorf("wanted error but didn't get one with %v", c)
 	}
 }
 
-func TestValidator(t *testing.T){
+func TestValidator(t *testing.T) {
 	t.Run("No URLs in JSON throws error", func(t *testing.T) {
 		c := &Config{Count: 100}
 		v := GetValidator()
@@ -69,7 +69,7 @@ func TestValidator(t *testing.T){
 
 func TestStartsWithHTTP(t *testing.T) {
 	m := errors.New("doesn't start with http")
-	var ProtocolTests = []struct{
+	var ProtocolTests = []struct {
 		s string
 		b bool
 		e error
@@ -81,10 +81,10 @@ func TestStartsWithHTTP(t *testing.T) {
 		{"telnet", false, m},
 		{"192.168.0", false, m},
 	}
-	for _, tt := range ProtocolTests{
+	for _, tt := range ProtocolTests {
 		got, _ := StartsWithHTTP(tt.s)
 		want := tt.b
-		if got != want{
+		if got != want {
 			t.Errorf("Got %t, wanted %t with %q", got, want, tt.s)
 		}
 	}

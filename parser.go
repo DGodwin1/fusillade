@@ -41,7 +41,6 @@ func (JSONParser) Translate(bytesData []byte) *Config {
 	return parsed
 }
 
-
 func GetParser(path string) (Parser, error) {
 	Parser := map[string]Parser{
 		".json": JSONParser{},
@@ -67,13 +66,13 @@ func ParseConfigFile(path string) (*Config, error) {
 
 	parser, err := GetParser(path)
 
-	if err != nil{
+	if err != nil {
 		return &Config{}, err
 	}
 
 	FileInBytes, err := ioutil.ReadAll(file)
 
-	if err != nil{
+	if err != nil {
 		return &Config{}, err
 	}
 

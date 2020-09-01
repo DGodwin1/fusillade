@@ -7,7 +7,7 @@ import (
 )
 
 type Response struct {
-	StatusCode int
+	StatusCode      int
 	RequestStart    time.Time
 	RequestFinished time.Time
 	ResponseTime    int64
@@ -43,7 +43,6 @@ type UserJourneyResult struct {
 	JourneyResponseTimeMS int64
 	Finished              bool
 }
-
 
 func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
 	// WalkJourney goes through a user journey (a slice of URLs)
@@ -122,15 +121,15 @@ func calculateMSDelta(start time.Time, end time.Time) int64 {
 	return end.Sub(start).Milliseconds()
 }
 
-type SessionPauser interface{
+type SessionPauser interface {
 	PauseSession()
 }
 
-type FakeUser struct{
+type FakeUser struct {
 	DelayTime int
 }
 
-func(f FakeUser) PauseSession(){
+func (f FakeUser) PauseSession() {
 	time.Sleep(time.Duration(f.DelayTime) * time.Millisecond)
 }
 

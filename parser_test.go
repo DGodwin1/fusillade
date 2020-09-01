@@ -28,7 +28,7 @@ func TestTranslate(t *testing.T) {
 
 		want := &Config{
 			Urls:  []string{"https://www.google.com", "https://www.voguebusiness.com"},
-			Count: 100,
+			Count: 10,
 		}
 
 		if !reflect.DeepEqual(got, want) {
