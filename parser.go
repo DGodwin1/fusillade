@@ -14,8 +14,10 @@ type Config struct {
 	// Represents a parsed configuration file.
 	// Regardless of how a parser is implemented
 	// they should organise data into this format.
-	Urls  []string `json:"urls"`
-	Count int      `json:"hits"`
+	Urls        []string `json:"urls"`
+	Count       int      `json:"hits"`
+	Rate        int      `json:"rate"`
+	PauseLength int      `json:"pause_length"`
 }
 
 type Parser interface {
