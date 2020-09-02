@@ -52,7 +52,19 @@ func main() {
 	})
 
 	//Now prepare a report
-	MakeBarGraph(responses)
+	var latencies []int
+	var xAxis []int
+		// Get hold of the latency values so that you can put them into the graph.
+		for _, v := range responses {
+			latencies = append(latencies, int(v.JourneyResponseTimeMS))
+		}
+
+		// Number each user journey value
+		for i := 1; i <= len(latencies); i++ {
+			xAxis = append(xAxis, i)
+		}
+
+	MakeBarGraph("Latencies", "latencies.html", "MillisecondReading", xAxis, latencies)
 	//MakePieChart(responses)
 
 	//var jsonData []byte
