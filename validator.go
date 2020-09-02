@@ -18,18 +18,12 @@ func (ConfigValidator) Validate(c *Config) (bool, error) {
 
 	// No URLs?
 	if len(c.Urls) < 1 {
-		return false, errors.New("you need to make request at least 1 URL")
+		return false, errors.New("you need to request at least 1 URL")
 	}
 
-	// Empty URLs?
-	for _, v := range c.Urls {
-		if v == "" {
-			return false, errors.New("you can't test a url that doesn't exist")
-		}
-	}
-
+	// You're trying to test at least one user journey, right?
 	if c.Count < 1 {
-		return false, errors.New("you need to test at least one user journey")
+		return false, errors.New("Count needs to be bigger than larger than 0")
 	}
 
 	// Properly formatted according to Go?
@@ -48,6 +42,16 @@ func (ConfigValidator) Validate(c *Config) (bool, error) {
 		}
 	}
 
+	// Rate bigger than 0
+	if c.Rate < 1 {
+		return false, errors.New("Rate must be greater than 0")
+	}
+
+	// PauseLength bigger than 0
+	if c.PauseLength < 1 {
+		return false, errors.New("PauseLength must be greater than 0")
+	}
+
 	return true, nil
 }
 
@@ -56,5 +60,10 @@ func StartsWithHTTP(s string) (bool, error) {
 		//Not enough letters to be http to begin with
 		return false, errors.New("doesn't start with http")
 	}
-	return s[0:4] == "http", nil
+
+	if !(s[0:4] == "http") {
+		return false, errors.New("doesn't start with http")
+	}
+
+	return true, nil
 }

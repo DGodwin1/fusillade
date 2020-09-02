@@ -18,36 +18,25 @@ func AssertError(t *testing.T, err error, c *Config) {
 
 func TestValidator(t *testing.T) {
 	t.Run("No URLs in JSON throws error", func(t *testing.T) {
-		c := &Config{Count: 100}
+		c := &Config{
+			Urls:  nil,
+			Count: 100,
+			Rate:  1,
+		}
 		v := GetValidator()
 
 		_, err := v.Validate(c)
 
 		AssertError(t, err, c)
 
-	})
-
-	t.Run("An empty string in the URL array throws error", func(t *testing.T) {
-		c := &Config{Urls: []string{" "}}
-		v := GetValidator()
-
-		_, err := v.Validate(c)
-
-		AssertError(t, err, c)
 	})
 
 	t.Run("Count must be greater than 0", func(t *testing.T) {
-		c := &Config{Count: 0}
-
-		v := GetValidator()
-
-		_, err := v.Validate(c)
-
-		AssertError(t, err, c)
-	})
-
-	t.Run("URLs must be 'proper'", func(t *testing.T) {
-		c := &Config{Urls: []string{"/google.com"}}
+		c := &Config{
+			Urls:  []string{"https://"},
+			Count: 0,
+			Rate:  2,
+		}
 
 		v := GetValidator()
 
@@ -57,8 +46,40 @@ func TestValidator(t *testing.T) {
 	})
 
 	t.Run("URLs must start with http'", func(t *testing.T) {
-		c := &Config{Urls: []string{"h"}}
+		c := &Config{
+			Urls:  []string{"httz://www.google.com"},
+			Count: 1,
+			Rate:  1,
+		}
 
+		v := GetValidator()
+
+		_, err := v.Validate(c)
+
+		AssertError(t, err, c)
+	})
+
+	t.Run("Rate must be greater than 0", func(t *testing.T) {
+		c := &Config{
+			Urls:  []string{"https://www.googlg.com"},
+			Count: 100,
+			Rate:  0,
+		}
+
+		v := GetValidator()
+
+		_, err := v.Validate(c)
+
+		AssertError(t, err, c)
+	})
+
+	t.Run("Session pause must be greater than 0", func(t *testing.T) {
+		c := &Config{
+			Urls:        []string{"https://www.googlg.com"},
+			Count:       100,
+			Rate:        1,
+			PauseLength: 0,
+		}
 		v := GetValidator()
 
 		_, err := v.Validate(c)
