@@ -21,7 +21,7 @@ func MakeRequest(url string, start func() time.Time, end func() time.Time) Respo
 	e := end()
 
 	if err != nil {
-		return Response{} //TODO: also return an error and deal with that when making requests.
+		return Response{}
 	}
 
 	rt := calculateMSDelta(s, e)
@@ -34,8 +34,8 @@ func MakeRequest(url string, start func() time.Time, end func() time.Time) Respo
 }
 
 type UserJourneyResult struct {
-	// Collect response data data and wrap them
-	// with information on how a user journey went
+	// Collects responses and summative data
+	// about a user journey
 	Responses             map[int]Response
 	Codes                 map[int]int
 	JourneyStart          time.Time
@@ -45,9 +45,7 @@ type UserJourneyResult struct {
 }
 
 func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
-	// WalkJourney goes through a user journey (a slice of URLs)
-	// and reports back how it went.
-
+	// WalkJourney goes through URLs and reports back how it went.
 	var Codes = map[int]int{}
 	var Finished bool
 
@@ -64,7 +62,7 @@ func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
 
 		// Pause the session and pretend
 		// to read the content for the amount
-		// of time specified on the SessionPauser.
+		// of time stored on the SessionPauser.
 		s.PauseSession()
 
 		// Should we request the next URL?
@@ -73,10 +71,7 @@ func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
 		}
 	}
 
-	// You've completed the walk. Now collect info related
-	// to when the user journey started, when it ended and the
-	// actual ResponseTime deltas associated with all the requests
-	// NOT counting the sleeping delays that are on each journey.
+	// You've completed the walk. Now collect the summative info.
 	FirstURLStartTime := Responses[0].RequestStart
 	LastURLEndTime := Responses[len(urls)-1].RequestFinished
 	JourneyTime := CalculateJourneyDuration(Responses)
@@ -84,12 +79,19 @@ func WalkJourney(urls []string, s SessionPauser) UserJourneyResult {
 	// Did we walk the full journey?
 	Finished = len(Responses) == len(urls)
 
-	return UserJourneyResult{Responses, Codes, FirstURLStartTime, LastURLEndTime, JourneyTime, Finished}
+	return UserJourneyResult{
+		Responses,
+		Codes,
+		FirstURLStartTime,
+		LastURLEndTime,
+		JourneyTime,
+		Finished}
 
 }
 
 func DoConcurrentTask(task func(), count int, ticker time.Ticker) {
-	// DoConcurrentTask takes in a function (a task) and runs it, concurrently, a set number of times.
+	// DoConcurrentTask takes in a a task, fires off the code a set
+	// It's used in this code for running many user journeys.
 	TasksComplete := 0
 	for range ticker.C {
 		if TasksComplete == count {
@@ -107,7 +109,7 @@ func CalculateJourneyDuration(Responses map[int]Response) int64 {
 	for _, v := range Responses {
 		// We have to loop through through each response
 		// and sum the response times. This is so we make sure that
-		// when we talk of the user journey time, we make sure not to
+		// when we talk of the user journey time, we don't
 		// let any reading time figures affect the data.
 		JourneyTime += v.ResponseTime
 	}
@@ -117,7 +119,8 @@ func CalculateJourneyDuration(Responses map[int]Response) int64 {
 func calculateMSDelta(start time.Time, end time.Time) int64 {
 	// CalculateMSDelta, as it suggests, takes two timestamps and
 	// calculates the delta between them by subtracting the start
-	// from the end. It represents the final result in milliseconds.
+	// from the end. It's here to ensure that the calculation of deltas
+	// is only managed in one place.
 	return end.Sub(start).Milliseconds()
 }
 
