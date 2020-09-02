@@ -1,5 +1,7 @@
 {
   "urls": ["https://www.google.com", "https://www.voguebusiness.com"],
-  "hits": 1
+  "hits": 10,
+  "rate": 100,
+  "pause_length": 100
 
 }
