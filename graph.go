@@ -6,22 +6,22 @@ import (
 	"os"
 )
 
-func MakeBarGraph(GraphTitle, fileName, yAxisName string, xValues, yValues []int){
+func MakeBarGraph(GraphTitle, fileName, yAxisName string, xAxis, yAxis []int) {
 	// Setup the graph
 	bar := charts.NewBar()
 	bar.SetGlobalOptions(charts.TitleOpts{
-		Title:    GraphTitle,
+		Title: GraphTitle,
 	})
 
-	// Stitch together the xAxis and latency values.
-	bar.AddXAxis(xValues)
+	// Sort out the axises and their values.
+	bar.AddXAxis(xAxis)
+	bar.AddYAxis(yAxisName, yAxis)
 
-	bar.AddYAxis(yAxisName, yValues)
-
-	// Create the file.
+	// Create the file where the graph will be stored.
 	f, err := os.Create(fileName)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	bar.Render(f)
