@@ -1,6 +1,6 @@
 package main
 
-func MaxUserJourneyResponseLatency(r []UserJourneyResult) int64 {
+func MaxUserJourneyResponseLatency(r []UserJourneyResult) int {
 	// GetMaxUserJourneyLatency is a custom max function
 	// used to get the biggest latency value in a set of UserJourneys.
 
@@ -13,10 +13,10 @@ func MaxUserJourneyResponseLatency(r []UserJourneyResult) int64 {
 			max = v.JourneyResponseTimeMS
 		}
 	}
-	return max
+	return int(max)
 }
 
-func MinUserJourneyResponseLatency(r []UserJourneyResult) int64 {
+func MinUserJourneyResponseLatency(r []UserJourneyResult) int {
 	min := r[0].JourneyResponseTimeMS
 
 	for _, v := range r[1:] {
@@ -24,7 +24,7 @@ func MinUserJourneyResponseLatency(r []UserJourneyResult) int64 {
 			min = v.JourneyResponseTimeMS
 		}
 	}
-	return min
+	return int(min)
 }
 
 //func FindPercentile(latencies []int, p int) int{
@@ -58,4 +58,22 @@ func CountResponseCodes(r []UserJourneyResult) map[int]int {
 		}
 	}
 	return codes
+}
+
+type SummativeData struct {
+	ResponseCodeCount  map[int]int
+	MinJourneyResponse int
+	MaxJourneyResponse int
+}
+
+func ConstructSummativeStats(r []UserJourneyResult) SummativeData {
+	// As the name suggests, this constructs a summative
+	// report that is returned to the user.
+
+	return SummativeData{
+		ResponseCodeCount:  CountResponseCodes(r),
+		MinJourneyResponse: MinUserJourneyResponseLatency(r),
+		MaxJourneyResponse: MaxUserJourneyResponseLatency(r),
+	}
+
 }

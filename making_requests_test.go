@@ -1,6 +1,7 @@
-package main
+package tests
 
 import (
+	"fusillade"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,8 +15,8 @@ func AssertResponseCode(t *testing.T, got, want int) {
 	}
 }
 
-func GetUserReader() FakeUser {
-	return FakeUser{DelayTime: 1}
+func GetUserReader() main.FakeUser {
+	return main.FakeUser{DelayTime: 1}
 }
 
 func Start() time.Time {
@@ -32,7 +33,7 @@ func TestGetter(t *testing.T) {
 			writer.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeRequest(FakeServer.URL, Start, End)
+		got := main.MakeRequest(FakeServer.URL, Start, End)
 		var want int64 = 10
 
 		if got.ResponseTime != want {
@@ -46,7 +47,7 @@ func TestGetter(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		got := MakeRequest(FakeServer.URL, time.Now, time.Now)
+		got := main.MakeRequest(FakeServer.URL, time.Now, time.Now)
 		want := http.StatusOK
 
 		AssertResponseCode(t, got.StatusCode, want)
@@ -58,7 +59,7 @@ func TestGetter(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
 
-		got := MakeRequest(FakeServer.URL, time.Now, time.Now)
+		got := main.MakeRequest(FakeServer.URL, time.Now, time.Now)
 		want := http.StatusInternalServerError
 
 		AssertResponseCode(t, got.StatusCode, want)
@@ -79,7 +80,7 @@ func TestWalker(t *testing.T) {
 		URLS := []string{Server1.URL, Server2.URL}
 
 		// 'work' will be a UserJourney struct that we can pull data out of.
-		work := WalkJourney(URLS, GetUserReader())
+		work := main.WalkJourney(URLS, GetUserReader())
 
 		// Reach into the ResponseCodes map that is stored in 'work' and see what's held there for 200 codes.
 		got := work.Codes[200]
@@ -100,7 +101,7 @@ func TestWalker(t *testing.T) {
 
 		URLS := []string{GoodServer.URL, BadServer.URL}
 
-		work := WalkJourney(URLS, GetUserReader())
+		work := main.WalkJourney(URLS, GetUserReader())
 		got200 := work.Codes[200]
 		got404 := work.Codes[404]
 		want := 1
@@ -125,7 +126,7 @@ func TestWalker(t *testing.T) {
 		// We should only get two responses in the struct:
 		// one for the first GoodServer and another for the BadServer.URL.
 		// We should include the BadServer.URL because the user would have seen it.
-		work := WalkJourney(URLS, GetUserReader())
+		work := main.WalkJourney(URLS, GetUserReader())
 		got := len(work.Responses)
 		want := 2
 
@@ -166,7 +167,7 @@ func TestWalker(t *testing.T) {
 		}
 
 		for _, tt := range FinishedTests {
-			got := WalkJourney(tt.journey, GetUserReader())
+			got := main.WalkJourney(tt.journey, GetUserReader())
 			if got.Finished != tt.want {
 				t.Errorf("Got %v, wanted %v", got.Finished, tt.want)
 			}
@@ -182,14 +183,14 @@ func TestConcurrency(t *testing.T) {
 		}))
 
 		ticker := time.NewTicker(1 * time.Millisecond)
-		resultChannel := make(chan Response)
+		resultChannel := make(chan main.Response)
 		count := 20
 
-		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(FakeServer.URL, time.Now, time.Now)
+		main.DoConcurrentTask(func() {
+			resultChannel <- main.MakeRequest(FakeServer.URL, time.Now, time.Now)
 		}, count, *ticker)
 
-		var responses []Response
+		var responses []main.Response
 		for i := 0; i < count; i++ {
 			result := <-resultChannel
 			responses = append(responses, result)
@@ -215,15 +216,15 @@ func TestConcurrency(t *testing.T) {
 		}))
 
 		ticker := time.NewTicker(1 * time.Millisecond)
-		resultChannel := make(chan UserJourneyResult)
+		resultChannel := make(chan main.UserJourneyResult)
 		count := 20
 		urls := []string{FakeServer.URL, FakeServer2.URL}
 
-		DoConcurrentTask(func() {
-			resultChannel <- WalkJourney(urls, GetUserReader())
+		main.DoConcurrentTask(func() {
+			resultChannel <- main.WalkJourney(urls, GetUserReader())
 		}, count, *ticker)
 
-		var responses []UserJourneyResult
+		var responses []main.UserJourneyResult
 		for i := 0; i < count; i++ {
 			result := <-resultChannel
 			responses = append(responses, result)
@@ -247,14 +248,14 @@ func TestConcurrency(t *testing.T) {
 		}))
 
 		ticker := time.NewTicker(1 * time.Millisecond)
-		resultChannel := make(chan Response)
+		resultChannel := make(chan main.Response)
 		count := 10
 
-		DoConcurrentTask(func() {
-			resultChannel <- MakeRequest(SlowServer.URL, time.Now, time.Now)
+		main.DoConcurrentTask(func() {
+			resultChannel <- main.MakeRequest(SlowServer.URL, time.Now, time.Now)
 		}, count, *ticker)
 
-		var got []Response
+		var got []main.Response
 		for i := 0; i < count; i++ {
 			result := <-resultChannel
 			got = append(got, result)
@@ -289,7 +290,7 @@ func TestStatusOkay(t *testing.T) {
 		{599, false},
 	}
 	for _, tt := range StatusTests {
-		got := StatusOkay(tt.c)
+		got := main.StatusOkay(tt.c)
 		if got != tt.want {
 			t.Errorf("got %v, want %v", got, tt.want)
 		}

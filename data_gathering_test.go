@@ -14,7 +14,7 @@ func TestMaxLatencyValue(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 70})
 
 		got := MaxUserJourneyResponseLatency(ujs)
-		var want int64 = 70
+		var want = 70
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -29,7 +29,7 @@ func TestMaxLatencyValue(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 70})
 
 		got := MaxUserJourneyResponseLatency(ujs)
-		var want int64 = 70
+		var want = 70
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -47,7 +47,7 @@ func TestMaxLatencyValue(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: -40})
 
 		got := MaxUserJourneyResponseLatency(ujs)
-		var want int64 = -20
+		var want = -20
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -63,7 +63,7 @@ func TestMaxLatencyValue(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 1})
 
 		got := MaxUserJourneyResponseLatency(ujs)
-		var want int64 = 1
+		var want = 1
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -81,7 +81,7 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 64})
 
 		got := MinUserJourneyResponseLatency(ujs)
-		var want int64 = 20
+		var want = 20
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -96,7 +96,7 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: 1})
 
 		got := MinUserJourneyResponseLatency(ujs)
-		var want int64 = 0
+		var want = 0
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -111,7 +111,7 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: -3})
 
 		got := MinUserJourneyResponseLatency(ujs)
-		var want int64 = -3
+		var want = -3
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -126,7 +126,7 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 		ujs = append(ujs, UserJourneyResult{JourneyResponseTimeMS: -1})
 
 		got := MinUserJourneyResponseLatency(ujs)
-		var want int64 = -1
+		var want = -1
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -134,26 +134,26 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 	})
 }
 
-//func TestFindPercentile(t *testing.T) {
-//	t.Run("Find 5th", func(t *testing.T) {
-//		latencies := []int{15, 20, 35, 40, 50}
-//		got := FindPercentile(latencies, 5)
-//		want := 15
-//		if got != want {
-//			t.Errorf("got %d want %d", got, want)
-//		}
-//	})
+////func TestFindPercentile(t *testing.T) {
+////	t.Run("Find 5th", func(t *testing.T) {
+////		latencies := []int{15, 20, 35, 40, 50}
+////		got := FindPercentile(latencies, 5)
+////		want := 15
+////		if got != want {
+////			t.Errorf("got %d want %d", got, want)
+////		}
+////	})
+////
+////	t.Run("30th percentile", func(t *testing.T) {
+////		latencies := []int{15, 20, 35, 40, 50}
+////		got := FindPercentile(latencies, 30)
+////		want := 20
+////		if got != want {
+////			t.Errorf("got %d want %d", got, want)
+////		}
+////	})
+////}
 //
-//	t.Run("30th percentile", func(t *testing.T) {
-//		latencies := []int{15, 20, 35, 40, 50}
-//		got := FindPercentile(latencies, 30)
-//		want := 20
-//		if got != want {
-//			t.Errorf("got %d want %d", got, want)
-//		}
-//	})
-//}
-
 func TestCountResponseCodes(t *testing.T) {
 	t.Run("Test correct counting", func(t *testing.T) {
 		var ujs []UserJourneyResult
