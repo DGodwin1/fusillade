@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	//Parse the file.
 	config, err := ParseConfigFile("test_config.json")
 
@@ -51,21 +52,31 @@ func main() {
 		return responses[i].JourneyStart.Before(responses[j].JourneyStart)
 	})
 
-	//Now prepare a report
+	//Now prepare a latency report
 	var latencies []int
 	var xAxis []int
-		// Get hold of the latency values so that you can put them into the graph.
-		for _, v := range responses {
-			latencies = append(latencies, int(v.JourneyResponseTimeMS))
-		}
+	// Get hold of the latency values so that you can put them into the graph.
+	for _, v := range responses {
+		latencies = append(latencies, int(v.JourneyResponseTimeMS))
+	}
 
-		// Number each user journey value
-		for i := 1; i <= len(latencies); i++ {
-			xAxis = append(xAxis, i)
-		}
+	// Number each user journey value
+	for i := 1; i <= len(latencies); i++ {
+		xAxis = append(xAxis, i)
+	}
 
-	MakeBarGraph("Latencies", "latencies.html", "MillisecondReading", xAxis, latencies)
-	//MakePieChart(responses)
+	MakeBarGraph("Latencies", "latencies.html", "Latency", xAxis, latencies)
+
+	//Prepare a count for the ResponseCodeCount
+	var codeXAxis []int
+	var countYAxis []int
+
+	for code, count := range CountResponseCodes(responses) {
+		codeXAxis = append(codeXAxis, code)
+		countYAxis = append(countYAxis, count)
+	}
+
+	MakeBarGraph("ResponseCodeCount", "responseCount.html", "Count", codeXAxis, countYAxis)
 
 	//var jsonData []byte
 	//jsonData, err = json.MarshalIndent(responses, "", "     ")
