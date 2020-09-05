@@ -1,16 +1,15 @@
-package tests
+package main
 
 import (
 	"errors"
-	"fusillade"
 	"testing"
 )
 
-func GetValidator() main.Validator {
-	return main.ConfigValidator{}
+func GetValidator() Validator {
+	return ConfigValidator{}
 }
 
-func AssertError(t *testing.T, err error, c *main.Config) {
+func AssertError(t *testing.T, err error, c *Config) {
 	t.Helper()
 	if err == nil {
 		t.Errorf("wanted error but didn't get one with %v", c)
@@ -19,7 +18,7 @@ func AssertError(t *testing.T, err error, c *main.Config) {
 
 func TestValidator(t *testing.T) {
 	t.Run("No URLs in JSON throws error", func(t *testing.T) {
-		c := &main.Config{
+		c := &Config{
 			Urls:  nil,
 			Count: 100,
 			Rate:  1,
@@ -33,7 +32,7 @@ func TestValidator(t *testing.T) {
 	})
 
 	t.Run("Count must be greater than 0", func(t *testing.T) {
-		c := &main.Config{
+		c := &Config{
 			Urls:  []string{"https://"},
 			Count: 0,
 			Rate:  2,
@@ -47,7 +46,7 @@ func TestValidator(t *testing.T) {
 	})
 
 	t.Run("URLs must start with http'", func(t *testing.T) {
-		c := &main.Config{
+		c := &Config{
 			Urls:  []string{"httz://www.google.com"},
 			Count: 1,
 			Rate:  1,
@@ -61,7 +60,7 @@ func TestValidator(t *testing.T) {
 	})
 
 	t.Run("Rate must be greater than 0", func(t *testing.T) {
-		c := &main.Config{
+		c := &Config{
 			Urls:  []string{"https://www.googlg.com"},
 			Count: 100,
 			Rate:  0,
@@ -75,7 +74,7 @@ func TestValidator(t *testing.T) {
 	})
 
 	t.Run("Session pause must be greater than 0", func(t *testing.T) {
-		c := &main.Config{
+		c := &Config{
 			Urls:        []string{"https://www.googlg.com"},
 			Count:       100,
 			Rate:        1,
@@ -104,7 +103,7 @@ func TestStartsWithHTTP(t *testing.T) {
 		{"192.168.0", false, m},
 	}
 	for _, tt := range ProtocolTests {
-		got, _ := main.StartsWithHTTP(tt.s)
+		got, _ := StartsWithHTTP(tt.s)
 		want := tt.b
 		if got != want {
 			t.Errorf("Got %t, wanted %t with %q", got, want, tt.s)
