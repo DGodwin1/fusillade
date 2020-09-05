@@ -1,5 +1,11 @@
 package main
 
+import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
+)
+
 func MaxUserJourneyResponseLatency(r []UserJourneyResult) int {
 	// GetMaxUserJourneyLatency is a custom max function
 	// used to get the biggest latency value in a set of UserJourneys.
@@ -76,4 +82,13 @@ func ConstructSummativeStats(r []UserJourneyResult) SummativeData {
 		MaxJourneyResponse: MaxUserJourneyResponseLatency(r),
 	}
 
+}
+
+func ConstructJSONReport(r []UserJourneyResult){
+	var jsonData []byte
+	jsonData, err := json.MarshalIndent(r, "", "     ")
+	if err != nil {
+		log.Println(err)
+	}
+	err = ioutil.WriteFile("output.json", jsonData, 0644)
 }
