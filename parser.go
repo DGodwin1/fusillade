@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -15,7 +16,7 @@ type Config struct {
 	// Regardless of how a parser is implemented
 	// they should organise data into this format.
 	Urls        []string `json:"urls"`
-	Count       int      `json:"hits"`
+	Count       int      `json:"user_journey_amount"`
 	Rate        int      `json:"rate"`
 	PauseLength int      `json:"pause_length"`
 }
@@ -83,4 +84,25 @@ func ParseConfigFile(path string) (*Config, error) {
 	parsed = parser.Translate(FileInBytes)
 
 	return parsed, nil
+}
+
+func MakeFakeJSONFile(){
+	fakeConfig, err := json.MarshalIndent(struct {
+		Urls        []string `json:"urls"`
+		Count       int      `json:"user_journey_amount"`
+		Rate        int      `json:"rate"`
+		PauseLength int      `json:"pause_length"`
+	}{
+		Urls:        []string{"https://www.example.com/", "https://www.example.com/"},
+		Count:       100,
+		Rate:        100,
+		PauseLength: 100,
+	}, " ", "	")
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ioutil.WriteFile("config.json", fakeConfig, 0644)
 }
