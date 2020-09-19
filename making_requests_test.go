@@ -176,14 +176,14 @@ func TestWalker(t *testing.T) {
 }
 
 func TestConcurrency(t *testing.T) {
-	t.Run("20 requests leads to 20 Responses", func(t *testing.T) {
+	t.Run("100 requests leads to 100 Responses", func(t *testing.T) {
 		FakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
 		ticker := time.NewTicker(1 * time.Millisecond)
 		resultChannel := make(chan Response)
-		count := 20
+		count := 100
 
 		DoConcurrentTask(func() {
 			resultChannel <- MakeRequest(FakeServer.URL, time.Now, time.Now)
@@ -197,7 +197,7 @@ func TestConcurrency(t *testing.T) {
 
 		// There should be 20 responses from the channel
 		got := len(responses)
-		want := 20
+		want := 100
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
@@ -236,6 +236,7 @@ func TestConcurrency(t *testing.T) {
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
+
 	})
 
 	t.Run("Test that slow server responds to requests even though they are sent before it can respond", func(t *testing.T) {
