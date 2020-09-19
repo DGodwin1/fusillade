@@ -9,17 +9,14 @@ import (
 
 func main() {
 	//Line up the flags.
-	configFile := flag.String("c", "", "user to provide config")
-	wantsGraphs := flag.Bool("g", false, "does user want data visulisation?")
-	wantsJSON := flag.Bool("j", false, "does user want to save JSON of responses")
+	configFile := flag.String("c", "", "provide config location.")
+	wantsGraphs := flag.Bool("g", false, "set flag to true if you want graphs for user journey and response code counts.")
+	wantsJSON := flag.Bool("j", false, "set flag to true if you want user journey data to be saved a JSON file.")
 	flag.Parse()
 
 	if *configFile == ""{
 		//generate fake JSON
-		fmt.Println(`This tool needs a configuration file to work from.
-To make things easier, I have made one called 'config.json'
-which you can edit and use. Once you're happy, simply re-run the
-program with the -config flag set to 'config.json'.`)
+		fmt.Println(`This tool needs a configuration file to work from. To make things easier, I have made one called 'config.json' which you can edit and use. Once you're happy, simply re-run the program with the -config flag set to 'config.json'.`)
 
 		//create the file as promised:
 		MakeFakeJSONFile()
@@ -107,8 +104,9 @@ program with the -config flag set to 'config.json'.`)
 
 	fmt.Println("Load test complete.")
 	d := ConstructSummativeStats(responses)
-	fmt.Println("Max response time:", d.MinJourneyResponse)
-	fmt.Println("Min response time:", d.MaxJourneyResponse)
-	fmt.Println("Min response time:", d.ResponseCodeCount)
+	fmt.Println("Min response time:", d.MinJourneyResponse)
+	fmt.Println("Max response time:", d.MaxJourneyResponse)
+	fmt.Println("Response codes encountered time:", d.ResponseCodeCount)
+	fmt.Println("95% percentile value:")
 
 }
