@@ -108,5 +108,5 @@ func main() {
 	fmt.Println("Max response time:", d.MaxJourneyResponse)
 	fmt.Println("Response codes encountered time:", d.ResponseCodeCount)
 	fmt.Println("95% percentile value:")
-	fmt.Println("Test complete.")
+	fmt.Println("Test complete")
 }
