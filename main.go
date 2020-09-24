@@ -101,6 +101,7 @@ func main() {
 	}
 
 	d := ConstructSummativeStats(responses)
+	fmt.Println("\n******************************")
 	fmt.Println("Min user journey response time:", d.MinJourneyResponse)
 	fmt.Println("Max user journey response time:", d.MaxJourneyResponse)
 	fmt.Println("Response codes encountered time:", d.ResponseCodeCount)
