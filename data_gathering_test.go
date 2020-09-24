@@ -134,26 +134,6 @@ func TestFindMinJourneyResponseTime(t *testing.T) {
 	})
 }
 
-////func TestFindPercentile(t *testing.T) {
-////	t.Run("Find 5th", func(t *testing.T) {
-////		latencies := []int{15, 20, 35, 40, 50}
-////		got := FindPercentile(latencies, 5)
-////		want := 15
-////		if got != want {
-////			t.Errorf("got %d want %d", got, want)
-////		}
-////	})
-////
-////	t.Run("30th percentile", func(t *testing.T) {
-////		latencies := []int{15, 20, 35, 40, 50}
-////		got := FindPercentile(latencies, 30)
-////		want := 20
-////		if got != want {
-////			t.Errorf("got %d want %d", got, want)
-////		}
-////	})
-////}
-//
 func TestCountResponseCodes(t *testing.T) {
 	t.Run("Test correct counting", func(t *testing.T) {
 		var ujs []UserJourneyResult

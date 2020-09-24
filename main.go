@@ -45,9 +45,7 @@ func main() {
 	count := config.Count
 	rate := time.Duration(config.Rate)
 	ticker := time.NewTicker(rate * time.Millisecond)
-
 	resultChannel := make(chan UserJourneyResult)
-
 	user := FakeUser{DelayTime: config.PauseLength}
 
 	// Hit the URLS
@@ -102,11 +100,9 @@ func main() {
 		ConstructJSONReport(responses)
 	}
 
-	fmt.Println("Load test complete.")
 	d := ConstructSummativeStats(responses)
-	fmt.Println("Min response time:", d.MinJourneyResponse)
-	fmt.Println("Max response time:", d.MaxJourneyResponse)
+	fmt.Println("Min user journey response time:", d.MinJourneyResponse)
+	fmt.Println("Max user journey response time:", d.MaxJourneyResponse)
 	fmt.Println("Response codes encountered time:", d.ResponseCodeCount)
-	fmt.Println("95% percentile value:")
 	fmt.Println("Test complete")
 }

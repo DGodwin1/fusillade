@@ -33,21 +33,30 @@ func MinUserJourneyResponseLatency(r []UserJourneyResult) int {
 	return int(min)
 }
 
-//func FindPercentile(latencies []int, p int) int{
+//func FindPercentile(results []UserJourneyResult, p int) int{
 //	// FindPercentile looks for the according percentile
-//	// figure depending on the given p.
+//	//Get the latencies into a structure I can work from.
+//	var latencies []int
 //
-//	// Check everything is sorted.
+//	for _, journey := range results{
+//		latencies = append(latencies, int(journey.JourneyResponseTimeMS))
+//		}
+//
+//
+//	np := math.Ceil(float64(p) * float64(len(latencies))/100)
+//	fmt.Println(np)
+//
+//	// Sort the latencies.
 //	if !sort.IntsAreSorted(latencies){
 //		sort.Ints(latencies)
 //	}
 //
-//	// 1: percentile/100 * number of items in list
-//	fmt.Println(float64(p)/100)
+//	fmt.Println(latencies)
+//	if latencies[int(np)-1] != nil {
 //
-//
-//	return 100
-//
+//	}
+//	return latencies[int(np)-1]
+
 //}
 
 func CountResponseCodes(r []UserJourneyResult) map[int]int {
@@ -81,7 +90,6 @@ func ConstructSummativeStats(r []UserJourneyResult) SummativeData {
 		MinJourneyResponse: MinUserJourneyResponseLatency(r),
 		MaxJourneyResponse: MaxUserJourneyResponseLatency(r),
 	}
-
 }
 
 func ConstructJSONReport(r []UserJourneyResult){
