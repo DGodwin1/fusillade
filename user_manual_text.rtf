@@ -1,0 +1,256 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
+{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue153;\red0\green0\blue233;
+}
+{\*\expandedcolortbl;;\cspthree\c0\c0\c0;\csgenericrgb\c0\c0\c60000;\cspthree\c0\c0\c89558;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl560\sa321\pardirnatural\partightenfactor0
+
+\f0\b\fs48 \cf2 \expnd0\expndtw0\kerning0
+Welcome!\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 This user manual is here to help get you up and running with Fusillade, a load testing tool written in Go.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b \cf2 Contents:\
+What is a load test?\
+What does Fusillade do?\
+Some key terms to get started\
+How do I get started?\
+I have my JSON configuration file. How do I run a test?\
+I want graphs in my output. How do I do that?\
+I want a JSON summary. How do I do that?\
+I want graph and JSON data. How do I do that?\
+How do I structure a JSON file?\
+What does this JSON file do?\
+What data types are needed for the JSON?\
+How do I know if my JSON is valid?\
+I don't want to use JSON configuration files. What do I do?
+\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
+
+\b\fs36 \cf2 What is a load test?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Load tests place pressure on a system. They're used by a range of companies, like American Express and The Financial Times to ensure that their product is capable of handling many users.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
+
+\b\fs36 \cf2 What does Fusillade do?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 In short, Fusillade is given some directions and goes off and tests your service. It then provides a report.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
+
+\b\fs36 \cf2 Some key terms to get started\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Before diving into how to use Fusillade, it's worth covering some key terms.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f1 \cf2 Config
+\f0 : this is a file. Config files are made and edited by you, the developer, and given to Fusillade when it starts. Fusillade reads the values in a config and launches a load test based the values stored there.\
+
+\f1 User journey
+\f0 : user journeys are the steps a user takes through your website. Each step is represented with a different URL.\
+
+\f1 Latency
+\f0 : latency is the time it takes for a particular action to complete and there are many ways to measure it. Fusillade measures 
+\i response time
+\i0  which is the time it takes for a request to fully download after being summoned. This is different from 
+\i service time
+\i0 , which measures the time it takes for a request to download after its first byte. Fusillade measures latency in milliseconds.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl560\sa321\pardirnatural\partightenfactor0
+
+\b\fs48 \cf2 How do I get started?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 You run Fusillade with a binary file from the command line. You 'pass' the binary file flags. These flags help you to configure your test.\
+First, you need to have (or generate) a Fusillade binary.\
+If you don't have one, install Go on your computer, clone the Github repo to your local machine and run 
+\f1 go build
+\f0  inside the directory. This will generate a binary.\
+Second, you need your JSON configuration file. Don't know how that JSON supposed to look? Not to worry. You can consult the documentation below, or run the following command and Fusillade will generate a configuration file that you can edit.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 ./fusillade\
+
+\f0\b\fs28 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+\cf2 I have my JSON configuration file. How do I run a test?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Provide the name of your config file in the following format:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 ./fusillade -c=your_confile_file.json\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f0 \cf2 Fusillade looks for the config file in the directory where the binary is stored. If your config file is stored somewhere else, you need to tell Fusillade. Give Fusillade a file path (relative to the current working directory or absolute from the root) and it will go and grab it. That might be 
+\f1 -c=../your_config_file.json
+\f0  to indicate it is in the parent directory.\
+Not familiar with the command line? {\field{\*\fldinst{HYPERLINK "https://www.codecademy.com/learn/learn-the-command-line"}}{\fldrslt \cf3 \ul \ulc3 This guide might help.}}
+\b\fs28 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+\cf2 I want graphs in my output. How do I do that?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Set the graph flag 
+\f1 -g
+\f0  to 
+\f1 true
+\f0 .\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 ./fusillade -c=your_config_file.json -g=true\
+
+\f0\b\fs28 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+\cf2 I want a JSON summary. How do I do that?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Set the JSON flag 
+\f1 -j
+\f0  to 
+\f1 true
+\f0 .\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 ./fusillade -c=your_config_file.json -j=true\
+
+\f0\b\fs28 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+\cf2 I want graph and JSON data. How do I do that?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Set the graph and JSON flags to 
+\f1 true
+\f0 .\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 ./fusillade -c=your_config_file.json -g=true -j=true\
+
+\f0\b\fs36 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
+\cf2 How do I structure a JSON file?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 Here is an example JSON configuration file.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 \{\
+  "urls": ["<{\field{\*\fldinst{HYPERLINK "https://www.google.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.google.com}}>", "<{\field{\*\fldinst{HYPERLINK "https://www.voguebusiness.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.voguebusiness.com}}>"],\
+  "user_journey_amount": 10,\
+  "rate": 100,\
+  "pause_length": 100\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf2 What does this JSON file do?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 A JSON configuration file tells Fusillade:\
+The URLs to fire at, the number of journeys it should conduct, the speed at which journeys are launched and the length of time the tool should wait between requesting the next URL.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b \cf2 In more detail:
+\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f1 \cf2 "urls"
+\f0  = the different webpages you want Fusillade to test.\
+
+\f1 "user_journey_amount"
+\f0  = the number of user journeys you want to test.\
+
+\f1 "rate"
+\f0  = the rate at which a user journey is launched in milliseconds. 100 = 1 journey every 100 milliseconds = 10 journeys every second.\
+
+\f1 "pause_length"
+\f0  = the length of time in milliseconds you want the tool to pause between each request.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+
+\b\fs28 \cf2 What data types are needed for the JSON?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f1\b0\fs24 \cf2 "urls"
+\f0  expects an array of strings. It cannot be empty.\
+Some advice: use full URLs. It's easier to parse and less error prone. Favour 
+\f1 [<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.example.com}}>](<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.example.com}}>)
+\f0  over 
+\f1 example.com
+\f0 \
+
+\f1 "user_journey_amount"
+\f0  expects an integer. It cannot be less than 1.\
+
+\f1 "rate"
+\f0  expects an integer. It cannot be less than 1.\
+
+\f1 "pause_length"
+\f0  expects an integer. It cannot be less than 0.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
+
+\b\fs28 \cf2 How do I know if my JSON is valid?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 First, check the JSON you have made is properly formatted. This tool is useful: {\field{\*\fldinst{HYPERLINK "https://jsonlint.com/"}}{\fldrslt \cf3 \ul \ulc3 https://jsonlint.com/}}\
+Second, Fusillade will tell you if the values in a configuration file aren't valid before it launches a test. If there is an error, you'll need to update the JSON file and then rerun the 
+\f1 ./fusillade
+\f0  command with your updated file.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
+
+\b\fs36 \cf2 I don't want to use JSON configuration files. What do I do?\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\b0\fs24 \cf2 If you want to parse your own file type, you'll need to access and change Fusillade's parsing logic in the source code.\
+All parser-based code can be found in 
+\f1 parser.go
+\f0 \
+To start, create a new type. Also, add a Translate method which takes an array of bytes and returns a *Config.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 type name_of_parser struct\{\}\
+\
+func (name_of_parser) Translate(bytesData []byte) *Config \{\
+	//Parsing logic for your particular file type goes in here.\
+\}\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f0 \cf2 File parsing logic goes inside Translate().\
+When 'translating' a file, you'll need to store values in and return a 
+\f1 *Config
+\f0 . For reference, the values held in a Config are:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 type Config struct \{\
+	Urls []string json:"urls"\
+	Count int json:"user_journey_amount"\
+	Rate int json:"rate"\
+	PauseLength int json:"pause_length"\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f0 \cf2 The 
+\f1 json:"value_from_json_file"
+\f0  is Go's way of helping a bit. These are useful if your configuration file is relatively flat, but you may find it easier to manually read your file and add different values to a Config.\
+Once you've implemented Translate(), add your file type to GetParser() method. When Fusillade looks at your configuration file, it will provide an appropriate parser:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+
+\f1 \cf2 Parser := map[string]Parser\{\
+   ".json": JSONParser\{\},\
+	".yourFileType": name_of_parser\{\},\
+   //Add additional parsers here. They need to implement Parser interface.\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
+
+\f0 \cf2 Once you're done, you'll need to create a new binary. Run 
+\f1 go build
+\f0  to do this.\
+If the command line doesn't report any errors, you're good to re-run 
+\f1 ./fusillade
+\f0  with your file.\
+}
