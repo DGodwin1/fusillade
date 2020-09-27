@@ -1,8 +1,8 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
 {\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fmodern\fcharset0 Courier;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue153;\red0\green0\blue233;
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red251\green2\blue7;\red0\green0\blue153;
 }
-{\*\expandedcolortbl;;\cspthree\c0\c0\c0;\csgenericrgb\c0\c0\c60000;\cspthree\c0\c0\c89558;
+{\*\expandedcolortbl;;\cspthree\c0\c0\c0;\cssrgb\c100000\c14913\c0;\csgenericrgb\c0\c0\c60000;
 }
 \paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
 \deftab720
@@ -71,13 +71,15 @@ I don't want to use JSON configuration files. What do I do?
 First, you need to have (or generate) a Fusillade binary.\
 If you don't have one, install Go on your computer, clone the Github repo to your local machine and run 
 \f1 go build
-\f0  inside the directory. This will generate a binary.\
-Second, you need your JSON configuration file. Don't know how that JSON supposed to look? Not to worry. You can consult the documentation below, or run the following command and Fusillade will generate a configuration file that you can edit.\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
+\f0  inside the directory. This will generate a binary. \
+Second, you need your JSON configuration file. Don't know how that JSON supposed to look? Not to worry. You can consult the documentation below, or run the following command and Fusillade will generate a configuration file that you can edit:\
+./fusillade\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
 
-\f1 \cf2 ./fusillade\
-
-\f0\b\fs28 \
+\b \cf3 IMPORTANT NOTE ABOUT BINARY NAMES: the binary Go generates is named after the directory you\'92re in. Therefore, if you cloned from and are inside a msc-computer-science-project-2019-20-files-davidgodwinbirkbeck directory, the name of the binary will be msc-computer-science-project-2019-20-files-davidgodwinbirkbeck. \
+If you cloned from the initial Fusillade GitHub repo as I had (I used a private Fusillade repo before transferring all of my work to the Birkbeck repo) then you\'92d be working with a fusillade binary.\
+Why does this matter? If you see ./fusillade in this document and your binary is msc-computer-science-project-2019-20-files-davidgodwinbirkbeck, then you need to run ./msc-computer-science-project-2019-20-files-davidgodwinbirkbeck not ./fusillade. Other than that, nothing changes.
+\fs28 \cf2 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
 \cf2 I have my JSON configuration file. How do I run a test?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
@@ -91,7 +93,7 @@ Second, you need your JSON configuration file. Don't know how that JSON supposed
 \f0 \cf2 Fusillade looks for the config file in the directory where the binary is stored. If your config file is stored somewhere else, you need to tell Fusillade. Give Fusillade a file path (relative to the current working directory or absolute from the root) and it will go and grab it. That might be 
 \f1 -c=../your_config_file.json
 \f0  to indicate it is in the parent directory.\
-Not familiar with the command line? {\field{\*\fldinst{HYPERLINK "https://www.codecademy.com/learn/learn-the-command-line"}}{\fldrslt \cf3 \ul \ulc3 This guide might help.}}
+Not familiar with the command line? {\field{\*\fldinst{HYPERLINK "https://www.codecademy.com/learn/learn-the-command-line"}}{\fldrslt \cf4 \ul \ulc4 This guide might help.}}
 \b\fs28 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl340\sa280\pardirnatural\partightenfactor0
 \cf2 I want graphs in my output. How do I do that?\
@@ -131,8 +133,9 @@ Not familiar with the command line? {\field{\*\fldinst{HYPERLINK "https://www.co
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
 
 \f1 \cf2 ./fusillade -c=your_config_file.json -g=true -j=true\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
 
-\f0\b\fs36 \
+\f0\b\fs36 \cf2 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl440\sa298\pardirnatural\partightenfactor0
 \cf2 How do I structure a JSON file?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
@@ -141,7 +144,7 @@ Not familiar with the command line? {\field{\*\fldinst{HYPERLINK "https://www.co
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\pardirnatural\partightenfactor0
 
 \f1 \cf2 \{\
-  "urls": ["<{\field{\*\fldinst{HYPERLINK "https://www.google.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.google.com}}>", "<{\field{\*\fldinst{HYPERLINK "https://www.voguebusiness.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.voguebusiness.com}}>"],\
+  "urls": ["<{\field{\*\fldinst{HYPERLINK "https://www.google.com"}}{\fldrslt \cf4 \ul \ulc4 https://www.google.com}}>", "<{\field{\*\fldinst{HYPERLINK "https://www.voguebusiness.com"}}{\fldrslt \cf4 \ul \ulc4 https://www.voguebusiness.com}}>"],\
   "user_journey_amount": 10,\
   "rate": 100,\
   "pause_length": 100\
@@ -178,7 +181,7 @@ The URLs to fire at, the number of journeys it should conduct, the speed at whic
 \f1\b0\fs24 \cf2 "urls"
 \f0  expects an array of strings. It cannot be empty.\
 Some advice: use full URLs. It's easier to parse and less error prone. Favour 
-\f1 [<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.example.com}}>](<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf3 \ul \ulc3 https://www.example.com}}>)
+\f1 [<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf4 \ul \ulc4 https://www.example.com}}>](<{\field{\*\fldinst{HYPERLINK "https://www.example.com"}}{\fldrslt \cf4 \ul \ulc4 https://www.example.com}}>)
 \f0  over 
 \f1 example.com
 \f0 \
@@ -196,7 +199,7 @@ Some advice: use full URLs. It's easier to parse and less error prone. Favour
 \b\fs28 \cf2 How do I know if my JSON is valid?\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sl280\sa240\pardirnatural\partightenfactor0
 
-\b0\fs24 \cf2 First, check the JSON you have made is properly formatted. This tool is useful: {\field{\*\fldinst{HYPERLINK "https://jsonlint.com/"}}{\fldrslt \cf3 \ul \ulc3 https://jsonlint.com/}}\
+\b0\fs24 \cf2 First, check the JSON you have made is properly formatted. This tool is useful: {\field{\*\fldinst{HYPERLINK "https://jsonlint.com/"}}{\fldrslt \cf4 \ul \ulc4 https://jsonlint.com/}}\
 Second, Fusillade will tell you if the values in a configuration file aren't valid before it launches a test. If there is an error, you'll need to update the JSON file and then rerun the 
 \f1 ./fusillade
 \f0  command with your updated file.\
