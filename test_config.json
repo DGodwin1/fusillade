@@ -1,6 +1,10 @@
 {
-  "urls": ["https://www.google.com", "https://www.voguebusiness.com"],
+  "urls": [
+    "https://www.voguebusiness.com/",
+    "https://www.voguebusiness.com/sustainability/should-synthetic-clothing-be-sold-with-a-warning",
+    "https://www.voguebusiness.com/sustainability/fashions-dirty-microplastics-secret-pollution-polyester"
+  ],
   "user_journey_amount": 10,
   "rate": 100,
-  "pause_length": 100
+  "pause_length": 1000
 }
